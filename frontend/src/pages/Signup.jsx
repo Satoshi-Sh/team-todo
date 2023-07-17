@@ -3,11 +3,11 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 
 const Signup = () => {
-  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [walletAccount, setWalletAccount] = useState("");
+  const [message, setMessage] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -17,16 +17,17 @@ const Signup = () => {
       return;
     }
     // Perform form submission logic here
-    console.log("Submitted:", { name, email, password, walletAccount });
-    // axios
-    //   .post('http://localhost:3001/hedera/register')
-    //   .then(function (response) {
-    //     // {accountId, privateKey}
-    //     console.log(response.data)
-    //   })
-    //   .catch(function (error) {
-    //     console.error(error)
-    //   })
+    console.log("Submitted:", { username, email, password });
+    const body = { username, email, password };
+    axios
+      .post("http://localhost:3000/api/signup", body)
+      .then(function (response) {
+        console.log(response);
+      })
+      .catch(function (error) {
+        console.error(error);
+        setMessage(error);
+      });
   };
 
   return (
@@ -39,17 +40,17 @@ const Signup = () => {
         <div className="mb-4">
           <label
             className="block text-gray-700 text-sm font-bold mb-2"
-            htmlFor="name"
+            htmlFor="username"
           >
             User Name
           </label>
           <input
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            id="name"
+            id="username"
             type="text"
             placeholder="Enter your name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             required
           />
         </div>
@@ -122,6 +123,9 @@ const Signup = () => {
           </button>
         </div>
       </form>
+      <div id="message" className="text-red-500 mt-6 text-center">
+        {message && message}
+      </div>
     </div>
   );
 };
