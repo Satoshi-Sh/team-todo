@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { baseUrl } from "../constant/constant";
+axios.defaults.withCredentials = true;
 
 const Signup = () => {
   const [username, setUsername] = useState("");
@@ -12,7 +13,6 @@ const Signup = () => {
   const [selectedFile, setSelectedFile] = useState(null);
 
   const onFileChange = (e) => {
-    console.log(e.target.files[0]);
     setSelectedFile(e.target.files[0]);
   };
 

@@ -14,7 +14,6 @@ const Login = () => {
     // Perform form submission logic here
     const data = { username, password };
     try {
-      console.log(baseUrl);
       const res = await axios.post(`${baseUrl}/api/login`, data);
       if ("error" in res.data) {
         console.log(res.data.error);
