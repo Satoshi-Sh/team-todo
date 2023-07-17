@@ -5,6 +5,12 @@ const Member = require("./models/member");
 const Image = require("./models/image");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const multer = require("multer");
+const uploadImage = require("./utils/utils");
+
+// multer
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
 // Connect to MongoDB database
 mongoose.connect("mongodb://localhost/mydb", {
@@ -18,20 +24,28 @@ app.use(express.json());
 
 //signup
 
-app.post("/api/signup", async (req, res) => {
+app.post("/api/signup", upload.single("selectedFile"), async (req, res) => {
   try {
+    // todo when file is not attached by the user
+    // error message when file is too big?
+    const imageId = await uploadImage(req.file);
+    console.log(imageId);
     const { username, email, password } = req.body;
-    console.log(username, email, password);
     const newMember = new Member({
       username,
       email,
       password,
+      avatar: imageId,
     });
-    newMember.save();
-    res.send(`${username} is created.`);
+    await newMember.save();
+    res.json({ message: `${username} is created.` });
   } catch (error) {
     console.error(error);
-    res.send(error);
+    if (error.code === 11000) {
+      res.json({ error: "Duplicate username" });
+    } else {
+      res.json({ error: "Something went wrong." });
+    }
   }
 });
 

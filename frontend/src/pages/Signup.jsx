@@ -8,26 +8,46 @@ const Signup = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [selectedFile, setSelectedFile] = useState(null);
 
-  const handleSubmit = (e) => {
+  const onFileChange = (e) => {
+    console.log(e.target.files[0]);
+    setSelectedFile(e.target.files[0]);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
       alert("Passwords don't match");
       return;
     }
-    // Perform form submission logic here
-    console.log("Submitted:", { username, email, password });
-    const body = { username, email, password };
-    axios
-      .post("http://localhost:3000/api/signup", body)
-      .then(function (response) {
-        console.log(response);
-      })
-      .catch(function (error) {
-        console.error(error);
-        setMessage(error);
-      });
+
+    const formData = new FormData();
+    formData.append("username", username);
+    formData.append("email", email);
+    formData.append("password", password);
+    formData.append("selectedFile", selectedFile);
+
+    try {
+      const res = await axios.post(
+        "http://localhost:3000/api/signup",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      if ("error" in res.data) {
+        console.log(res.data.error);
+        setMessage(res.data.error);
+      } else {
+        console.log(res.data.message);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -35,6 +55,7 @@ const Signup = () => {
       <h1 className="text-2xl font-bold text-center">Sign Up</h1>
       <form
         onSubmit={handleSubmit}
+        encType="multipart/form-data"
         className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 mr-2 ml-2"
       >
         <div className="mb-4">
@@ -104,6 +125,21 @@ const Signup = () => {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
+          />
+        </div>
+        <div className="mb-6">
+          <label
+            htmlFor="file-input"
+            className="block text-gray-700 text-sm font-bold mb-2"
+          >
+            Choose Avatar (jpeg, jpg, png)
+          </label>
+          <input
+            type="file"
+            id="file-input"
+            onChange={onFileChange}
+            className="block w-full border border-gray-200 shadow rounded text-sm focus:z-10 focus:border-blue-500 focus:ring-blue-500 file:bg-transparent file:border-0 file:bg-gray-100 file:mr-4 file:py-3 file:px-4"
+            accept=".jpg,.jpeg,.png"
           />
         </div>
         <p className="text-center m-5">
