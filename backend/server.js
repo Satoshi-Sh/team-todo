@@ -25,7 +25,7 @@ mongoose.connect("mongodb://localhost/mydb", {
 });
 
 // Middleware
-app.use(cors({ origin: "http://localhost:4000" }));
+app.use(cors({ origin: "http://localhost:4000", credentials: true }));
 app.use(express.json());
 configurePassport(app);
 //passport
@@ -72,7 +72,8 @@ app.post("/api/login", async (req, res) => {
     if (await comparePassword(password, hashedPassword)) {
       const token = await generateToken(username);
       console.log(token);
-      res.cookie("authToken", token, { httpOnly: false });
+      const expirationTime = new Date(Date.now() + 60 * 60 * 1000);
+      res.cookie("authToken", token, { expires: expirationTime });
       res.json({ message: `Logged in Successfully` });
     } else {
       res.json({ error: "Incorrect Username and/or Password" });
