@@ -13,7 +13,7 @@ const {
   hashPassword,
   comparePassword,
 } = require("./utils/utils");
-
+const { configurePassport, generateToken } = require("./utils/auth");
 // multer
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -27,6 +27,8 @@ mongoose.connect("mongodb://localhost/mydb", {
 // Middleware
 app.use(cors({ origin: "http://localhost:4000" }));
 app.use(express.json());
+configurePassport(app);
+//passport
 
 //signup
 
@@ -68,6 +70,9 @@ app.post("/api/login", async (req, res) => {
     const { username, password } = req.body;
     const hashedPassword = await getUser(username);
     if (await comparePassword(password, hashedPassword)) {
+      const token = await generateToken(username);
+      console.log(token);
+      res.cookie("authToken", token, { httpOnly: false });
       res.json({ message: `Logged in Successfully` });
     } else {
       res.json({ error: "Incorrect Username and/or Password" });

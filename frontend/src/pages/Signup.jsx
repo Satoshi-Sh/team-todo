@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import { baseUrl } from "../constant/constant";
 
 const Signup = () => {
   const [username, setUsername] = useState("");
@@ -30,15 +31,11 @@ const Signup = () => {
     formData.append("selectedFile", selectedFile);
 
     try {
-      const res = await axios.post(
-        "http://localhost:3000/api/signup",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const res = await axios.post(`${baseUrl}/api/signup`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       if ("error" in res.data) {
         console.log(res.data.error);
         setMessage(res.data.error);

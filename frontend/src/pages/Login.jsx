@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import { baseUrl } from "../constant/constant";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -13,7 +14,8 @@ const Login = () => {
     // Perform form submission logic here
     const data = { username, password };
     try {
-      const res = await axios.post("http://localhost:3000/api/login", data);
+      console.log(baseUrl);
+      const res = await axios.post(`${baseUrl}/api/login`, data);
       if ("error" in res.data) {
         console.log(res.data.error);
         setMessage(res.data.error);
