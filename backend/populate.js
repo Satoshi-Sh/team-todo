@@ -19,8 +19,10 @@ async function insertSampleData() {
     // Create an image
     const imageBuffer = fs.readFileSync("./assets/default-user-image.png");
     const contentType = "image/png";
+    const fileName = "default-user-image.png";
     image1 = await Image.create({
       imageContent: imageBuffer,
+      fileName,
       contentType,
     });
     console.log(image1);
@@ -34,6 +36,7 @@ async function insertSampleData() {
     const imageBuffer2 = fs.readFileSync("./assets/project-management.png");
     const image2 = await Image.create({
       imageContent: imageBuffer2,
+      fileName: "project-management.png",
       contentType,
     });
 

@@ -12,4 +12,14 @@ async function uploadImage(file) {
   }
 }
 
-module.exports = uploadImage;
+async function getDefaultAvatarID() {
+  try {
+    const image = await Image.findOne({ fileName: "default-user-image.png" });
+    return image._id;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+module.exports = { uploadImage, getDefaultAvatarID };

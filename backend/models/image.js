@@ -7,6 +7,9 @@ const ImageSchema = new mongoose.Schema({
   contentType: {
     type: String,
   },
+  fileName: {
+    type: String,
+  },
   createdAt: {
     type: Date,
     default: Date.now,

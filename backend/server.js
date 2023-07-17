@@ -6,7 +6,7 @@ const Image = require("./models/image");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const multer = require("multer");
-const uploadImage = require("./utils/utils");
+const { uploadImage, getDefaultAvatarID } = require("./utils/utils");
 
 // multer
 const storage = multer.memoryStorage();
@@ -27,9 +27,15 @@ app.use(express.json());
 app.post("/api/signup", upload.single("selectedFile"), async (req, res) => {
   try {
     // todo when file is not attached by the user
-    // error message when file is too big?
-    const imageId = await uploadImage(req.file);
-    console.log(imageId);
+    let imageId;
+    if (!req.file) {
+      // use default image id
+      imageId = await getDefaultAvatarID();
+    } else {
+      // error message when file is too big?
+      imageId = await uploadImage(req.file);
+      console.log(imageId);
+    }
     const { username, email, password } = req.body;
     const newMember = new Member({
       username,
