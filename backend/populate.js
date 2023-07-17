@@ -5,6 +5,8 @@ const Image = require("./models/image");
 const Todo = require("./models/todo");
 const { connectToMongoDB } = require("./settingup_db");
 const fs = require("fs");
+const { hashPassword } = require("./utils/utils");
+require("dotenv").config();
 
 // Create fresh mydb
 connectToMongoDB();
@@ -25,12 +27,12 @@ async function insertSampleData() {
       fileName,
       contentType,
     });
-    console.log(image1);
+    const hash = await hashPassword(process.env["PASSWORD"]);
     // Create a member
     const member = await Member.create({
       username: "john",
       email: "john@example.com",
-      password: "password",
+      password: hash,
       avatar: image1._id,
     });
     const imageBuffer2 = fs.readFileSync("./assets/project-management.png");

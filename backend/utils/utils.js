@@ -1,5 +1,42 @@
 const Image = require("../models/image");
 const Member = require("../models/member");
+require("dotenv").config();
+const bcrypt = require("bcrypt");
+
+function hashPassword(
+  password,
+  saltRounds = Number(process.env["SALTROUNDS"])
+) {
+  return new Promise((resolve, reject) => {
+    bcrypt.hash(password, saltRounds, function (err, hash) {
+      if (err) {
+        // Handle error
+        console.error(err);
+        reject(err);
+      } else {
+        resolve(hash);
+      }
+    });
+  });
+}
+
+function comparePassword(inputPassword, hash) {
+  return new Promise((resolve, reject) => {
+    bcrypt.compare(inputPassword, hash, function (err, result) {
+      if (err) {
+        console.error(err);
+        reject(err);
+      } else if (result) {
+        console.log("Password match");
+        resolve(true);
+      } else {
+        console.log("Password does not match");
+        resolve(false);
+      }
+    });
+  });
+}
+
 async function uploadImage(file) {
   try {
     const { buffer, mimetype } = file;
@@ -32,4 +69,10 @@ async function getUser(username) {
   }
 }
 
-module.exports = { uploadImage, getDefaultAvatarID, getUser };
+module.exports = {
+  uploadImage,
+  getDefaultAvatarID,
+  getUser,
+  hashPassword,
+  comparePassword,
+};

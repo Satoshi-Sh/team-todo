@@ -6,7 +6,13 @@ const Image = require("./models/image");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const multer = require("multer");
-const { uploadImage, getDefaultAvatarID, getUser } = require("./utils/utils");
+const {
+  uploadImage,
+  getDefaultAvatarID,
+  getUser,
+  hashPassword,
+  comparePassword,
+} = require("./utils/utils");
 
 // multer
 const storage = multer.memoryStorage();
@@ -37,10 +43,12 @@ app.post("/api/signup", upload.single("selectedFile"), async (req, res) => {
       console.log(imageId);
     }
     const { username, email, password } = req.body;
+    const hash = await hashPassword(password);
+    console.log(hash);
     const newMember = new Member({
       username,
       email,
-      password,
+      password: hash,
       avatar: imageId,
     });
     await newMember.save();
@@ -58,8 +66,8 @@ app.post("/api/signup", upload.single("selectedFile"), async (req, res) => {
 app.post("/api/login", async (req, res) => {
   try {
     const { username, password } = req.body;
-    const inputPassword = await getUser(username);
-    if (inputPassword == password) {
+    const hashedPassword = await getUser(username);
+    if (await comparePassword(password, hashedPassword)) {
       res.json({ message: `Logged in Successfully` });
     } else {
       res.json({ error: "Incorrect Username and/or Password" });
