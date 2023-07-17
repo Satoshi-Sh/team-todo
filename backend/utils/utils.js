@@ -1,5 +1,5 @@
 const Image = require("../models/image");
-
+const Member = require("../models/member");
 async function uploadImage(file) {
   try {
     const { buffer, mimetype } = file;
@@ -22,4 +22,14 @@ async function getDefaultAvatarID() {
   }
 }
 
-module.exports = { uploadImage, getDefaultAvatarID };
+async function getUser(username) {
+  try {
+    const member = await Member.findOne({ username });
+    return member.password;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+module.exports = { uploadImage, getDefaultAvatarID, getUser };

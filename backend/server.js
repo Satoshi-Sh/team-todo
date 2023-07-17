@@ -6,7 +6,7 @@ const Image = require("./models/image");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const multer = require("multer");
-const { uploadImage, getDefaultAvatarID } = require("./utils/utils");
+const { uploadImage, getDefaultAvatarID, getUser } = require("./utils/utils");
 
 // multer
 const storage = multer.memoryStorage();
@@ -52,6 +52,21 @@ app.post("/api/signup", upload.single("selectedFile"), async (req, res) => {
     } else {
       res.json({ error: "Something went wrong." });
     }
+  }
+});
+//login
+app.post("/api/login", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    const inputPassword = await getUser(username);
+    if (inputPassword == password) {
+      res.json({ message: `Logged in Successfully` });
+    } else {
+      res.json({ error: "Incorrect Username and/or Password" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.json({ error: "Wrong Username" });
   }
 });
 

@@ -1,15 +1,28 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Perform form submission logic here
-    console.log("Submitted:", { email, password });
+    const data = { username, password };
+    try {
+      const res = await axios.post("http://localhost:3000/api/login", data);
+      if ("error" in res.data) {
+        console.log(res.data.error);
+        setMessage(res.data.error);
+      } else {
+        console.log(res.data.message);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -22,17 +35,17 @@ const Login = () => {
         <div className="mb-4">
           <label
             className="block text-gray-700 text-sm font-bold mb-2"
-            htmlFor="email"
+            htmlFor="username"
           >
-            Email
+            Username
           </label>
           <input
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            id="email"
-            type="email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            id="username"
+            type="text"
+            placeholder="Enter your username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             required
           />
         </div>
@@ -72,6 +85,9 @@ const Login = () => {
           </button>
         </div>
       </form>
+      <div id="message" className="text-red-500 mt-6 text-center">
+        {message && message}
+      </div>
     </div>
   );
 };
