@@ -1,20 +1,47 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
-import { useLocation } from "react-router-dom";
-import { UserContext } from "../context/UserContext";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Buffer } from "buffer";
+import { UserContext } from "../context/UserContext";
+import { baseUrl } from "../constant/constant";
+import axios from "axios";
+
+const LogoutButton = () => {
+  const { logout } = useContext(UserContext);
+  const navigation = useNavigate();
+  const handleClick = async () => {
+    try {
+      const res = await axios.get(`${baseUrl}/api/logout`);
+      if ("error" in res.data) {
+        console.log(res.data.error);
+      } else {
+        logout();
+        navigation("/");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  return (
+    <div
+      className="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-teal-500 hover:bg-white mt-4 lg:mt-0"
+      onClick={handleClick}
+    >
+      Logout
+    </div>
+  );
+};
 
 const ImageComponent = ({ imageContent, contentType, extraClass }) => {
   const [imageUrl, setImageUrl] = useState("");
 
   useEffect(() => {
-    console.log(imageContent);
     const buffer = Buffer.from(imageContent);
     const base64String = buffer.toString("base64");
     const url = `data:${contentType};base64,${base64String}`;
 
     setImageUrl(url);
-    console.log(url);
   }, [imageContent]);
 
   return (
@@ -98,12 +125,7 @@ function Navigation() {
 
         {user ? (
           <div className="flex flex-row gap-4">
-            <Link
-              to="/logout"
-              className="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-teal-500 hover:bg-white mt-4 lg:mt-0"
-            >
-              Logout
-            </Link>
+            <LogoutButton />
             {user && (
               <ImageComponent
                 imageContent={user.avatar.imageContent}

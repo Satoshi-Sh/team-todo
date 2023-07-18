@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { baseUrl } from "../constant/constant";
+import { UserContext } from "../context/UserContext";
+import { useContext } from "react";
 axios.defaults.withCredentials = true;
 
 const Signup = () => {
@@ -11,6 +14,8 @@ const Signup = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
+  const { login } = useContext(UserContext);
+  const navigation = useNavigate();
 
   const onFileChange = (e) => {
     setSelectedFile(e.target.files[0]);
@@ -41,6 +46,8 @@ const Signup = () => {
         setMessage(res.data.error);
       } else {
         console.log(res.data.message);
+        login(res.data.user);
+        navigation("/projects");
       }
     } catch (error) {
       console.log(error);

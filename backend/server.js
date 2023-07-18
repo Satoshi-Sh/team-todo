@@ -56,11 +56,12 @@ app.post("/api/signup", upload.single("selectedFile"), async (req, res) => {
       avatar: imageId,
     });
     await newMember.save();
+
     const token = await generateToken(username);
-    console.log(token);
     const expirationTime = new Date(Date.now() + 60 * 60 * 1000);
     res.cookie("authToken", token, { expires: expirationTime });
-    res.json({ message: `${username} is created.` });
+    const user = await getUser(username);
+    res.json({ message: `${username} is created.`, user });
   } catch (error) {
     console.error(error);
     if (error.code === 11000) {
@@ -91,13 +92,18 @@ app.post("/api/login", async (req, res) => {
     res.json({ error: "Wrong Username" });
   }
 });
+
+//logout
+app.get("/api/logout", (req, res) => {
+  res.clearCookie("authToken", { path: "/" });
+  res.json({ message: "Cookie Deleted" });
+});
 // test
 app.get(
   "/api/profile",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     // Access user object from req.user
-    console.log(req.user);
     res.send("Profile page");
   }
 );
