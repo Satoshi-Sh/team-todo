@@ -62,7 +62,7 @@ async function getDefaultAvatarID() {
 async function getUser(username) {
   try {
     const member = await Member.findOne({ username });
-    return member.password;
+    return member.populate("avatar");
   } catch (error) {
     console.error(error);
     throw error;

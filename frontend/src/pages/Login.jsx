@@ -1,13 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { baseUrl } from "../constant/constant";
+import { UserContext } from "../context/UserContext";
+import { useContext } from "react";
+//import jwt from "jsonwebtoken";
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const { login } = useContext(UserContext);
 
+  // check cookie
+  useEffect(() => {}, []);
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -19,7 +25,8 @@ const Login = () => {
         console.log(res.data.error);
         setMessage(res.data.error);
       } else {
-        console.log(res.data.message);
+        console.log(res.data.user);
+        login(res.data.user);
       }
     } catch (error) {
       console.log(error);

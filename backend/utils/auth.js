@@ -10,6 +10,7 @@ const { ExtractJwt, Strategy: JwtStrategy } = passportJWT;
 // Configure Passport
 const configurePassport = (app) => {
   app.use(cookieParser());
+  console.log("working?");
 
   const jwtOptions = {
     jwtFromRequest: (req) => {
@@ -26,7 +27,9 @@ const configurePassport = (app) => {
     new JwtStrategy(jwtOptions, async (payload, done) => {
       try {
         // Find the user based on the payload
-        const user = await Member.findOne({ username: payload.username });
+        const user = await Member.findOne({
+          username: payload.username,
+        }).populate("avatar");
         if (user) {
           // If user is found, return the user object
           done(null, user);

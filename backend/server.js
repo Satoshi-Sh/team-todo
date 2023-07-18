@@ -6,6 +6,8 @@ const Image = require("./models/image");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const multer = require("multer");
+const passport = require("passport");
+
 const {
   uploadImage,
   getDefaultAvatarID,
@@ -25,10 +27,10 @@ mongoose.connect("mongodb://localhost/mydb", {
 });
 
 // Middleware
+configurePassport(app);
+app.use(passport.initialize());
 app.use(cors({ origin: "http://localhost:4000", credentials: true }));
 app.use(express.json());
-configurePassport(app);
-//passport
 
 //signup
 
@@ -54,6 +56,10 @@ app.post("/api/signup", upload.single("selectedFile"), async (req, res) => {
       avatar: imageId,
     });
     await newMember.save();
+    const token = await generateToken(username);
+    console.log(token);
+    const expirationTime = new Date(Date.now() + 60 * 60 * 1000);
+    res.cookie("authToken", token, { expires: expirationTime });
     res.json({ message: `${username} is created.` });
   } catch (error) {
     console.error(error);
@@ -66,15 +72,17 @@ app.post("/api/signup", upload.single("selectedFile"), async (req, res) => {
 });
 //login
 app.post("/api/login", async (req, res) => {
+  console.log(req.user);
   try {
     const { username, password } = req.body;
-    const hashedPassword = await getUser(username);
+    const user = await getUser(username);
+    const hashedPassword = user.password;
     if (await comparePassword(password, hashedPassword)) {
       const token = await generateToken(username);
       console.log(token);
       const expirationTime = new Date(Date.now() + 60 * 60 * 1000);
       res.cookie("authToken", token, { expires: expirationTime });
-      res.json({ message: `Logged in Successfully` });
+      res.json({ message: `Logged in Successfully`, user });
     } else {
       res.json({ error: "Incorrect Username and/or Password" });
     }
@@ -83,15 +91,16 @@ app.post("/api/login", async (req, res) => {
     res.json({ error: "Wrong Username" });
   }
 });
-
-app.get("/api/members", async (req, res) => {
-  try {
-    const members = await Member.find({});
-    res.send(members);
-  } catch (err) {
-    console.log(err);
+// test
+app.get(
+  "/api/profile",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    // Access user object from req.user
+    console.log(req.user);
+    res.send("Profile page");
   }
-});
+);
 
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
