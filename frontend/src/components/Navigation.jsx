@@ -68,7 +68,10 @@ function Navigation() {
 
   return (
     <nav className="flex fixed w-full items-center justify-between flex-wrap bg-teal-500 p-6">
-      <Link to="/" className="flex items-center flex-shrink-0 text-white mr-6">
+      <Link
+        to={user ? "/projects" : "/"}
+        className="flex items-center flex-shrink-0 text-white mr-6"
+      >
         <span className="font-semibold text-xl tracking-tight">Team Todo</span>
       </Link>
       <div className="flex flex-row gap-3 lg:hidden ">

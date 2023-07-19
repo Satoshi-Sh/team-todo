@@ -25,17 +25,10 @@ const Project = (props) => {
           </p>
         </div>
       </div>
-      <div className="text-center">
-        <span className="inline-block  bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
-          {data.businessName}
-        </span>
-        <span className="inline-block  bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
-          ${data.goalAmount}
-        </span>
-      </div>
+
       <div className="flex flex-row justify-between">
         <span className="text-gray-700 italic">{data.due}</span>
-        <span className="text-gray-700 italic">{data.location}</span>
+        <span className="text-gray-700 italic">Created by {data.owner}</span>
       </div>
     </div>
   );
