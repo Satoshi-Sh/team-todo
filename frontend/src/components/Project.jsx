@@ -7,7 +7,7 @@ const Project = (props) => {
 
   const navigate = useNavigate();
   const handleClick = (e) => {
-    navigate(`/campaign/${e.currentTarget.id}`);
+    navigate(`/project/${e.currentTarget.id}`);
   };
 
   return (
