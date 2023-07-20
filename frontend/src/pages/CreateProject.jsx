@@ -2,14 +2,24 @@ import React, { useState } from "react";
 import axios from "axios";
 import { baseUrl } from "../constant/constant";
 import { useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
+
 axios.defaults.withCredentials = true;
 
 const TodoSection = ({ todos, setTodos }) => {
   const [todoTitle, setTodoTitle] = useState("");
   const handleAdd = (e) => {
     e.preventDefault();
+    if (todoTitle === "") return;
     setTodos((prevArray) => [...prevArray, todoTitle]);
     setTodoTitle("");
+  };
+  const handleDelete = (e) => {
+    const indexDelete = Number(e.target.parentNode.id);
+    setTodos((prevArray) =>
+      prevArray.filter((todo, index) => index !== indexDelete)
+    );
   };
   return (
     <div>
@@ -46,10 +56,22 @@ const TodoSection = ({ todos, setTodos }) => {
           </svg>
         </button>
       </div>
-      <div className="text-center m-4">
+      <div className="flex flex-col items-center m-4">
         {todos.length > 0 &&
           todos.map((todo, index) => {
-            return <div key={index}>{todo}</div>;
+            return (
+              <div key={index} className="w-2/3 flex flex-row justify-between">
+                <span>{todo}</span>
+                <span id={index}>
+                  <FontAwesomeIcon
+                    id={index}
+                    icon={faTrash}
+                    className="text-red-500 ml-auto cursor-pointer"
+                    onClick={handleDelete}
+                  />
+                </span>
+              </div>
+            );
           })}
       </div>
     </div>
