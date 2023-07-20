@@ -1,4 +1,8 @@
 import React, { useState } from "react";
+import axios from "axios";
+import { baseUrl } from "../constant/constant";
+import { useNavigate } from "react-router-dom";
+axios.defaults.withCredentials = true;
 
 const TodoSection = ({ todos, setTodos }) => {
   const [todoTitle, setTodoTitle] = useState("");
@@ -58,17 +62,34 @@ const CreateProject = () => {
   const [description, setDescription] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [todos, setTodos] = useState([]);
+  const [message, setMessage] = useState("");
+  const navigation = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     // Perform form submission logic here
-    console.log("Submitted:", {
-      title,
-      due,
-      description,
-      todos,
-      selectedFile,
-    });
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("due", due);
+    formData.append("description", description);
+    formData.append("todos", JSON.stringify(todos));
+    formData.append("selectedFile", selectedFile);
+    try {
+      const res = await axios.post(`${baseUrl}/api/new-project`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      if ("error" in res.data) {
+        setMessage(res.data.error);
+      } else {
+        console.log(res.data.message);
+        setMessage("");
+        navigation("/projects");
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
@@ -165,6 +186,7 @@ const CreateProject = () => {
           </button>
         </div>
       </form>
+      <div className="text-red-500 m-20 text-center">{message && message}</div>
     </div>
   );
 };

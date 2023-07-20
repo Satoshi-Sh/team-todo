@@ -3,21 +3,17 @@ const Member = require("../models/member");
 require("dotenv").config();
 const bcrypt = require("bcrypt");
 
-function hashPassword(
+async function hashPassword(
   password,
   saltRounds = Number(process.env["SALTROUNDS"])
 ) {
-  return new Promise((resolve, reject) => {
-    bcrypt.hash(password, saltRounds, function (err, hash) {
-      if (err) {
-        // Handle error
-        console.error(err);
-        reject(err);
-      } else {
-        resolve(hash);
-      }
-    });
-  });
+  try {
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    return hashedPassword;
+  } catch (err) {
+    console.error(err);
+    return err;
+  }
 }
 
 function comparePassword(inputPassword, hash) {

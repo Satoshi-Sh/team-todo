@@ -98,6 +98,21 @@ app.get("/api/logout", (req, res) => {
   res.clearCookie("authToken", { path: "/" });
   res.json({ message: "Cookie Deleted" });
 });
+
+//Projects
+
+app.post(
+  "/api/new-project",
+  upload.single("selectedFile"),
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    console.log(req.user);
+    console.log(req.body);
+    console.log(req.file);
+    res.json({ message: "First connection!!" });
+  }
+);
+
 // test
 app.get(
   "/api/profile",

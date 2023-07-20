@@ -14,7 +14,6 @@ const Login = () => {
   const navigation = useNavigate();
 
   // check cookie
-  useEffect(() => {}, []);
   const handleSubmit = async (e) => {
     e.preventDefault();
 
