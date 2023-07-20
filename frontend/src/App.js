@@ -4,6 +4,7 @@ import Navigation from "./components/Navigation";
 import Index from "./pages/Index";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
+import CreateProject from "./pages/CreateProject";
 import SingleProject from "./pages/SingleProject";
 import Projects from "./pages/Projects";
 import { Route, Routes } from "react-router-dom";
@@ -20,6 +21,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/projects" element={<Projects />} />
           <Route path="project/:id" element={<SingleProject />} />
+          <Route path="create-project" element={<CreateProject />} />
         </Routes>
       </UserProvider>
     </div>
