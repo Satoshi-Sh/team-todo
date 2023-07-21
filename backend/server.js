@@ -102,10 +102,14 @@ app.get("/api/logout", (req, res) => {
   res.json({ message: "Cookie Deleted" });
 });
 
-//Projects
-
+//////Projects
+// get all projects
 app.get("/api/projects", async (req, res) => {
-  return;
+  const projects = await Project.find({})
+    .populate("owner")
+    .populate("image")
+    .populate({ path: "owner", populate: { path: "avatar" } });
+  res.json(projects);
 });
 // create new project
 app.post(

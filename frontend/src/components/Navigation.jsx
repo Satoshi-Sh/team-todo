@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Buffer } from "buffer";
+
 import { UserContext } from "../context/UserContext";
 import { baseUrl } from "../constant/constant";
 import axios from "axios";
+import AvatarImage from "./AvatarImage";
 
 const LogoutButton = () => {
   const { logout } = useContext(UserContext);
@@ -30,26 +31,6 @@ const LogoutButton = () => {
     >
       Logout
     </div>
-  );
-};
-
-const ImageComponent = ({ imageContent, contentType, extraClass }) => {
-  const [imageUrl, setImageUrl] = useState("");
-
-  useEffect(() => {
-    const buffer = Buffer.from(imageContent);
-    const base64String = buffer.toString("base64");
-    const url = `data:${contentType};base64,${base64String}`;
-
-    setImageUrl(url);
-  }, [imageContent]);
-
-  return (
-    <img
-      className={"w-8 h-8 rounded-full " + extraClass}
-      src={imageUrl}
-      alt="avatar"
-    />
   );
 };
 
@@ -89,7 +70,7 @@ function Navigation() {
           </svg>
         </button>
         {user && (
-          <ImageComponent
+          <AvatarImage
             imageContent={user.avatar.imageContent}
             contentType={user.avatar.contentType}
           />
@@ -130,7 +111,7 @@ function Navigation() {
           <div className="flex flex-row gap-4">
             <LogoutButton />
             {user && (
-              <ImageComponent
+              <AvatarImage
                 imageContent={user.avatar.imageContent}
                 contentType={user.avatar.contentType}
                 extraClass={"hidden lg:block"}
