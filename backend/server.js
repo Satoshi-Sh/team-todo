@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const port = 3000;
 const Member = require("./models/member");
+const Project = require("./models/project");
 const Image = require("./models/image");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -11,9 +12,11 @@ const passport = require("passport");
 const {
   uploadImage,
   getDefaultAvatarID,
+  getDefaultProjectImageID,
   getUser,
   hashPassword,
   comparePassword,
+  getTodoIds,
 } = require("./utils/utils");
 const { configurePassport, generateToken } = require("./utils/auth");
 // multer
@@ -101,25 +104,45 @@ app.get("/api/logout", (req, res) => {
 
 //Projects
 
+app.get("/api/projects", async (req, res) => {
+  return;
+});
+// create new project
 app.post(
-  "/api/new-project",
+  "/api/project",
   upload.single("selectedFile"),
   passport.authenticate("jwt", { session: false }),
-  (req, res) => {
-    console.log(req.user);
-    console.log(req.body);
-    console.log(req.file);
-    res.json({ message: "First connection!!" });
-  }
-);
-
-// test
-app.get(
-  "/api/profile",
-  passport.authenticate("jwt", { session: false }),
-  (req, res) => {
-    // Access user object from req.user
-    res.send("Profile page");
+  async (req, res) => {
+    try {
+      const owner = req.user["_id"];
+      const { title, due, description, todos } = req.body;
+      // todo when file is not attached by the user
+      let imageId;
+      if (!req.file) {
+        // use default image id
+        imageId = await getDefaultProjectImageID();
+      } else {
+        // error message when file is too big?
+        imageId = await uploadImage(req.file);
+        console.log(imageId);
+      }
+      // add todos
+      const todoIds = await getTodoIds(todos);
+      // save project
+      const newProject = new Project({
+        title,
+        owner,
+        due,
+        description,
+        todos: todoIds,
+        image: imageId,
+      });
+      await newProject.save();
+      res.json({ message: `${title} is created.` });
+    } catch (err) {
+      console.error(err);
+      res.json({ message: err.message });
+    }
   }
 );
 

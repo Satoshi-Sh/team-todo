@@ -1,5 +1,6 @@
 const Image = require("../models/image");
 const Member = require("../models/member");
+const Todo = require("../models/todo");
 require("dotenv").config();
 const bcrypt = require("bcrypt");
 
@@ -55,6 +56,16 @@ async function getDefaultAvatarID() {
   }
 }
 
+async function getDefaultProjectImageID() {
+  try {
+    const image = await Image.findOne({ fileName: "project-management.png" });
+    return image._id;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
 async function getUser(username) {
   try {
     const member = await Member.findOne({ username });
@@ -65,10 +76,23 @@ async function getUser(username) {
   }
 }
 
+async function getTodoIds(todos) {
+  const todoIds = [];
+  const todosArray = JSON.parse(todos);
+  for (const title of todosArray) {
+    const newTodo = new Todo({ title });
+    await newTodo.save();
+    todoIds.push(newTodo._id);
+  }
+  return todoIds;
+}
+
 module.exports = {
   uploadImage,
   getDefaultAvatarID,
+  getDefaultProjectImageID,
   getUser,
   hashPassword,
   comparePassword,
+  getTodoIds,
 };
