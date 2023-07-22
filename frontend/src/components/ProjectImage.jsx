@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Buffer } from "buffer";
-const AvatarImage = ({ imageContent, contentType, extraClass }) => {
+const ProjectImage = ({ imageContent, contentType, extraClass }) => {
   const [imageUrl, setImageUrl] = useState("");
 
   useEffect(() => {
@@ -11,7 +11,13 @@ const AvatarImage = ({ imageContent, contentType, extraClass }) => {
     setImageUrl(url);
   }, [imageContent]);
 
-  return <img className={"w-full " + extraClass} src={imageUrl} alt="avatar" />;
+  return (
+    <img
+      className={"w-full " + extraClass}
+      src={imageUrl}
+      alt="project header"
+    />
+  );
 };
 
-export default AvatarImage;
+export default ProjectImage;

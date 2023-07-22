@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Buffer } from "buffer";
-const AvatarComponent = ({ imageContent, contentType, extraClass }) => {
+const AvatarImage = ({ imageContent, contentType, extraClass }) => {
   const [imageUrl, setImageUrl] = useState("");
 
   useEffect(() => {
@@ -20,4 +20,4 @@ const AvatarComponent = ({ imageContent, contentType, extraClass }) => {
   );
 };
 
-export default AvatarComponent;
+export default AvatarImage;

@@ -17,11 +17,12 @@ const Project = (props) => {
       onClick={handleClick}
       id={data._id}
     >
-      <ProjectImage
-        imageContent={data.image.imageContent}
-        contentType={data.image.contentType}
-      />
-      {/* <img className="w-full" src={data.image} alt="Project" /> */}
+      <div className="h-[280px] grid place-items-center">
+        <ProjectImage
+          imageContent={data.image.imageContent}
+          contentType={data.image.contentType}
+        />
+      </div>
       <div className="px-6 py-4">
         <div className="font-bold text-xl mb-2">{data.title}</div>
         <div className="h-30">

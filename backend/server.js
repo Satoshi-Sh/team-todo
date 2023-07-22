@@ -105,11 +105,36 @@ app.get("/api/logout", (req, res) => {
 //////Projects
 // get all projects
 app.get("/api/projects", async (req, res) => {
-  const projects = await Project.find({})
-    .populate("owner")
-    .populate("image")
-    .populate({ path: "owner", populate: { path: "avatar" } });
-  res.json(projects);
+  try {
+    const projects = await Project.find({})
+      .populate("owner")
+      .populate("image")
+      .populate({ path: "owner", populate: { path: "avatar" } });
+    res.json(projects);
+  } catch (err) {
+    console.error(err);
+    res.json({ message: "Something went wrong.." });
+  }
+});
+// get a project by id
+app.get("/api/project/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const project = await Project.findById(id)
+      .populate("owner")
+      .populate("image")
+      .populate({ path: "owner", populate: { path: "avatar" } })
+      .populate("members")
+      .populate({ path: "members", populate: { path: "avatar" } })
+      .populate("todos");
+    if (!project) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+    res.send(project);
+  } catch (err) {
+    console.error(err);
+    res.send({ message: "Something went wrong..." });
+  }
 });
 // create new project
 app.post(
