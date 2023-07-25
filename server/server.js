@@ -1,6 +1,10 @@
 const express = require("express");
 const app = express();
 const port = 3001;
+const http = require("http");
+const server = http.createServer(app);
+const socketIo = require("socket.io");
+
 const Member = require("./models/member");
 const Project = require("./models/project");
 const Image = require("./models/image");
@@ -8,6 +12,14 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const multer = require("multer");
 const passport = require("passport");
+
+const io = socketIo(server, {
+  cors: {
+    origin: "http://localhost:4000",
+    methods: ["*"],
+    credentials: true,
+  },
+});
 
 const {
   uploadImage,
@@ -18,7 +30,11 @@ const {
   comparePassword,
   getTodoIds,
 } = require("./utils/utils");
-const { configurePassport, generateToken } = require("./utils/auth");
+const {
+  configurePassport,
+  generateToken,
+  extractToken,
+} = require("./utils/auth");
 // multer
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -47,11 +63,9 @@ app.post("/api/signup", upload.single("selectedFile"), async (req, res) => {
     } else {
       // error message when file is too big?
       imageId = await uploadImage(req.file);
-      console.log(imageId);
     }
     const { username, email, password } = req.body;
     const hash = await hashPassword(password);
-    console.log(hash);
     const newMember = new Member({
       username,
       email,
@@ -83,7 +97,6 @@ app.post("/api/login", async (req, res) => {
     const hashedPassword = user.password;
     if (await comparePassword(password, hashedPassword)) {
       const token = await generateToken(username);
-      console.log(token);
       const expirationTime = new Date(Date.now() + 60 * 60 * 1000);
       res.cookie("authToken", token, { expires: expirationTime });
       res.json({ message: `Logged in Successfully`, user });
@@ -136,6 +149,21 @@ app.get("/api/project/:id", async (req, res) => {
     res.send({ message: "Something went wrong..." });
   }
 });
+
+// add user info to socket
+io.use(extractToken);
+// websocket for each project
+
+io.on("connection", (socket) => {
+  console.log(socket.user);
+
+  socket.on("disconnect", () => {
+    console.log("Client disconnected");
+  });
+  socket.on("joinProject", (data) => {
+    console.log(data.message);
+  });
+});
 // create new project
 app.post(
   "/api/project",
@@ -153,7 +181,6 @@ app.post(
       } else {
         // error message when file is too big?
         imageId = await uploadImage(req.file);
-        console.log(imageId);
       }
       // add todos
       const todoIds = await getTodoIds(todos);
@@ -175,6 +202,6 @@ app.post(
   }
 );
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });

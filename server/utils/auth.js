@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const Member = require("../models/member");
 const cookieParser = require("cookie-parser");
 require("dotenv").config();
+const cookie = require("cookie");
 
 const { ExtractJwt, Strategy: JwtStrategy } = passportJWT;
 
@@ -24,7 +25,6 @@ const configurePassport = (app) => {
   passport.use(
     new JwtStrategy(jwtOptions, async (payload, done) => {
       try {
-        console.log(payload, "test test...");
         // Find the user based on the payload
         const user = await Member.findOne({
           username: payload.username,
@@ -48,4 +48,22 @@ const generateToken = async (username) => {
   return token;
 };
 
-module.exports = { configurePassport, generateToken };
+// add user authentication to the websocket
+const extractToken = (socket, next) => {
+  // Verify the token (e.g., using JWT verification)
+  try {
+    console.log(socket.requets.header.cookie);
+    const cookies = cookie.parse(socket.request.headers.cookie || "");
+    const token = cookies.authToken;
+    console.log(token);
+    const decoded = jwt.verify(token, process.env["SECRET"]); // Replace "your-secret-key" with your actual secret key
+    // If token is valid, associate the authenticated user with the socket (optional)
+    socket.user = decoded; // You can store user-specific data in the socket
+    next();
+  } catch (err) {
+    // If token is invalid, reject the WebSocket connection
+    next(new Error("Authentication error"));
+  }
+};
+
+module.exports = { configurePassport, generateToken, extractToken };

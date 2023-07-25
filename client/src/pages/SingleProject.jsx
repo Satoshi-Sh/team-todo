@@ -5,6 +5,13 @@ import { capitalizeFirstLetter } from "../utils";
 import ProjectImage from "../components/ProjectImage";
 import { baseUrl } from "../constant/constant";
 import axios from "axios";
+import io from "socket.io-client";
+import { getTokenFromCookie } from "../utils";
+
+const connectionObject = {
+  withCredentials: true,
+};
+const socket = io.connect("http://localhost:3001", connectionObject);
 
 const Todo = ({ todo, status }) => {
   let color;
@@ -35,6 +42,7 @@ const Member = ({ username, imageContent, contentType }) => {
 const SingleProject = () => {
   const { id } = useParams();
   const [project, setProject] = useState(null);
+  console.log(getTokenFromCookie());
   useEffect(() => {
     const fetchProject = async () => {
       try {
@@ -47,6 +55,14 @@ const SingleProject = () => {
     };
     fetchProject();
   }, [id]);
+  // test socket
+  const joinProject = () => {
+    socket.emit("joinProject", {
+      message: "Like to join the project",
+      token: getTokenFromCookie(),
+    });
+  };
+
   if (!project) {
     return <h1 className="pt-12">Loading Data...</h1>;
   }
@@ -96,6 +112,15 @@ const SingleProject = () => {
             contentType={project.owner.avatar.contentType}
           />
         </div>
+      </div>
+      <div>
+        {/* if not the owner and already are team member */}
+        <button
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold m-12 py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          onClick={joinProject}
+        >
+          Join
+        </button>
       </div>
     </div>
   );
