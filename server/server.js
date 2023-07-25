@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const port = 3000;
+const port = 3001;
 const Member = require("./models/member");
 const Project = require("./models/project");
 const Image = require("./models/image");
