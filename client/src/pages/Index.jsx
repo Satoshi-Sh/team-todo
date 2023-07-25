@@ -17,7 +17,7 @@ const Index = () => {
           everyone is on the same page and tasks are efficiently managed.
         </p>
       </div>
-      <div className="flex flex-row gap-5">
+      <div className="flex flex-row gap-5 m-10">
         <Link
           to="/signup"
           className="inline-block text-sm px-4 py-2 leading-none bg-teal-400 border rounded text-white border-white hover:border-transparent hover:bg-teal-600 mt-4 lg:mt-0"
