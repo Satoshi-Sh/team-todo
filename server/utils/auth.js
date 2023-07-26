@@ -54,7 +54,6 @@ const extractToken = async (socket, next) => {
   try {
     const cookies = cookie.parse(socket.request.headers.cookie || "");
     const token = cookies.authToken;
-    console.log(token);
     const { username } = jwt.verify(token, process.env["SECRET"]);
     const user = await Member.findOne({
       username: username,

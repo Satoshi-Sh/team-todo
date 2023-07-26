@@ -173,8 +173,7 @@ io.on("connection", (socket) => {
           .populate("members")
           .populate({ path: "members", populate: { path: "avatar" } })
           .populate("todos");
-        console.log(newProject);
-        socket.emit("newProjectData", newProject);
+        io.emit("newProjectData", newProject);
       }
     } catch (err) {
       console.error("Error adding member to project: ", err);
