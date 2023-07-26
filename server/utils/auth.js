@@ -49,19 +49,21 @@ const generateToken = async (username) => {
 };
 
 // add user authentication to the websocket
-const extractToken = (socket, next) => {
+const extractToken = async (socket, next) => {
   // Verify the token (e.g., using JWT verification)
   try {
-    console.log(socket.requets.header.cookie);
     const cookies = cookie.parse(socket.request.headers.cookie || "");
     const token = cookies.authToken;
     console.log(token);
-    const decoded = jwt.verify(token, process.env["SECRET"]); // Replace "your-secret-key" with your actual secret key
-    // If token is valid, associate the authenticated user with the socket (optional)
-    socket.user = decoded; // You can store user-specific data in the socket
+    const { username } = jwt.verify(token, process.env["SECRET"]);
+    const user = await Member.findOne({
+      username: username,
+    });
+    socket.user = user;
     next();
   } catch (err) {
     // If token is invalid, reject the WebSocket connection
+    console.log(err);
     next(new Error("Authentication error"));
   }
 };

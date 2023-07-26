@@ -90,7 +90,6 @@ app.post("/api/signup", upload.single("selectedFile"), async (req, res) => {
 });
 //login
 app.post("/api/login", async (req, res) => {
-  console.log(req.user);
   try {
     const { username, password } = req.body;
     const user = await getUser(username);
@@ -155,13 +154,13 @@ io.use(extractToken);
 // websocket for each project
 
 io.on("connection", (socket) => {
-  console.log(socket.user);
+  console.log(`User connected: ${socket.id}`);
 
   socket.on("disconnect", () => {
     console.log("Client disconnected");
   });
   socket.on("joinProject", (data) => {
-    console.log(data.message);
+    console.log(`${socket.user.username}: ${data.message}`);
   });
 });
 // create new project

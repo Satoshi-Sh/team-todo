@@ -10,8 +10,12 @@ import { getTokenFromCookie } from "../utils";
 
 const connectionObject = {
   withCredentials: true,
+  autoConnect: false,
 };
 const socket = io.connect("http://localhost:3001", connectionObject);
+// socket.on("disconnect", () => {
+//   console.log("Socket disconnected");
+// });
 
 const Todo = ({ todo, status }) => {
   let color;
@@ -42,12 +46,10 @@ const Member = ({ username, imageContent, contentType }) => {
 const SingleProject = () => {
   const { id } = useParams();
   const [project, setProject] = useState(null);
-  console.log(getTokenFromCookie());
   useEffect(() => {
     const fetchProject = async () => {
       try {
         const response = await axios.get(`${baseUrl}/api/project/${id}`);
-        console.log(response.data);
         setProject(response.data);
       } catch (err) {
         console.error("Error fetching project:", err);
@@ -55,11 +57,16 @@ const SingleProject = () => {
     };
     fetchProject();
   }, [id]);
+  useEffect(() => {
+    socket.connect();
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
   // test socket
   const joinProject = () => {
     socket.emit("joinProject", {
       message: "Like to join the project",
-      token: getTokenFromCookie(),
     });
   };
 
