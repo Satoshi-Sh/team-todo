@@ -1,6 +1,7 @@
 const Image = require("../models/image");
 const Member = require("../models/member");
 const Todo = require("../models/todo");
+const Project = require("../models/project");
 require("dotenv").config();
 const bcrypt = require("bcrypt");
 
@@ -87,6 +88,26 @@ async function getTodoIds(todos) {
   return todoIds;
 }
 
+async function addMember(projectId, userId) {
+  try {
+    const project = await Project.findById(projectId)
+      .populate("owner")
+      .populate("image")
+      .populate({ path: "owner", populate: { path: "avatar" } })
+      .populate("members")
+      .populate({ path: "members", populate: { path: "avatar" } })
+      .populate("todos");
+    if (!project) {
+      throw new Error("Project not found");
+    }
+    project.members.push(userId);
+    await project.save();
+    return { message: "member added" };
+  } catch (error) {
+    console.error("Error adding member to project: ", error);
+  }
+}
+
 module.exports = {
   uploadImage,
   getDefaultAvatarID,
@@ -95,4 +116,5 @@ module.exports = {
   hashPassword,
   comparePassword,
   getTodoIds,
+  addMember,
 };

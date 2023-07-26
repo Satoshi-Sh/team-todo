@@ -6,16 +6,12 @@ import ProjectImage from "../components/ProjectImage";
 import { baseUrl } from "../constant/constant";
 import axios from "axios";
 import io from "socket.io-client";
-import { getTokenFromCookie } from "../utils";
 
 const connectionObject = {
   withCredentials: true,
   autoConnect: false,
 };
 const socket = io.connect("http://localhost:3001", connectionObject);
-// socket.on("disconnect", () => {
-//   console.log("Socket disconnected");
-// });
 
 const Todo = ({ todo, status }) => {
   let color;
@@ -59,14 +55,24 @@ const SingleProject = () => {
   }, [id]);
   useEffect(() => {
     socket.connect();
+    socket.on("newProjectData", (data) => {
+      console.log(data);
+      setProject(data);
+    });
+    socket.on("joinProjectError", (data) => {
+      console.error(data);
+    });
     return () => {
+      socket.off("newProjectData");
+      socket.off("joinProjectError");
       socket.disconnect();
     };
   }, []);
-  // test socket
+
   const joinProject = () => {
     socket.emit("joinProject", {
-      message: "Like to join the project",
+      message: `Like to join the project ${id}`,
+      projectId: id,
     });
   };
 
@@ -100,11 +106,16 @@ const SingleProject = () => {
       <div className="m-3">
         <h3 className="italic text-xl m-2">Members</h3>
         {/* test with owner for now */}
-        <Member
-          username={project.owner.username}
-          imageContent={project.owner.avatar.imageContent}
-          contentType={project.owner.avatar.contentType}
-        />
+        {project.members.map((member, index) => {
+          return (
+            <Member
+              key={index}
+              username={member.username}
+              imageContent={member.avatar.imageContent}
+              contentType={member.avatar.contentType}
+            />
+          );
+        })}
       </div>
       <div className="flex flex-row items-center justify-between p-10">
         <span className="text-gray-700 italic">
