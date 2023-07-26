@@ -23,7 +23,7 @@ const Todo = ({ todo, status }) => {
     color = "text-lime-500";
   }
   return (
-    <div className="w-1/2 max-w-[300px] text-left flex flex-row justify-between flex-wrap">
+    <div className="w-2/3 max-w-[400px] text-left flex flex-row justify-between flex-wrap">
       <span className="whitespace-nowrap w-[150px]">{todo}</span>
       <span className={`w-[100px] ${color}`}>{status}</span>
     </div>
