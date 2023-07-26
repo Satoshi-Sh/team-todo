@@ -153,36 +153,77 @@ app.get("/api/project/:id", async (req, res) => {
 // add user info to socket
 io.use(extractToken);
 // websocket for each project
+const projectNamespaces = {};
+
+function createProjectNamespace(projectId) {
+  if (!projectNamespaces[projectId]) {
+    projectNamespaces[projectId] = io.of(`/${projectId}`);
+    projectNamespaces[projectId].on("connection", (socket) => {
+      // Handle socket events within this project's namespace
+      console.log(`User connected to Project: ${projectId}`);
+      socket.on("joinProject", async (data) => {
+        // Handle joinProject event within this project's namespace
+        const { message } = data;
+        console.log(`${socket.user.username}: ${message}`);
+        try {
+          response = await addMember(projectId, socket.user._id);
+          console.log(response);
+          if ("message" in response) {
+            const newProject = await Project.findById(projectId)
+              .populate("owner")
+              .populate("image")
+              .populate({ path: "owner", populate: { path: "avatar" } })
+              .populate("members")
+              .populate({ path: "members", populate: { path: "avatar" } })
+              .populate("todos");
+            projectNamespaces[projectId].emit("newProjectData", newProject);
+          }
+        } catch (err) {
+          console.error("Error adding member to project: ", err);
+          socket.emit("joinProjectError", {
+            errorMessage: "Failed to join the project",
+          });
+        }
+      });
+    });
+  }
+}
 
 io.on("connection", (socket) => {
   console.log(`User connected: ${socket.id}`);
-
+  socket.on("connectProject", (data) => {
+    const { projectId } = data;
+    createProjectNamespace(projectId);
+    console.log(`User joined Project: ${projectId}`);
+  });
   socket.on("disconnect", () => {
     console.log("Client disconnected");
   });
-  socket.on("joinProject", async (data) => {
-    console.log(`${socket.user.username}: ${data.message}`);
-    try {
-      response = await addMember(data.projectId, socket.user._id);
-      console.log(response);
-      if ("message" in response) {
-        const newProject = await Project.findById(data.projectId)
-          .populate("owner")
-          .populate("image")
-          .populate({ path: "owner", populate: { path: "avatar" } })
-          .populate("members")
-          .populate({ path: "members", populate: { path: "avatar" } })
-          .populate("todos");
-        io.emit("newProjectData", newProject);
-      }
-    } catch (err) {
-      console.error("Error adding member to project: ", err);
-      socket.emit("joinProjectError", {
-        errorMessage: "Failed to join the project",
-      });
-    }
-  });
+  // socket.on("joinProject", async (data) => {
+  //   const { message, projectId } = data;
+  //   console.log(`${socket.user.username}: ${message}`);
+  //   try {
+  //     response = await addMember(projectId, socket.user._id);
+  //     console.log(response);
+  //     if ("message" in response) {
+  //       const newProject = await Project.findById(data.projectId)
+  //         .populate("owner")
+  //         .populate("image")
+  //         .populate({ path: "owner", populate: { path: "avatar" } })
+  //         .populate("members")
+  //         .populate({ path: "members", populate: { path: "avatar" } })
+  //         .populate("todos");
+  //       io.emit("newProjectData", newProject);
+  //     }
+  //   } catch (err) {
+  //     console.error("Error adding member to project: ", err);
+  //     socket.emit("joinProjectError", {
+  //       errorMessage: "Failed to join the project",
+  //     });
+  //   }
+  // });
 });
+
 // create new project
 app.post(
   "/api/project",
