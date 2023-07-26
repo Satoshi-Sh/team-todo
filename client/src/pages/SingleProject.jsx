@@ -7,12 +7,6 @@ import { baseUrl } from "../constant/constant";
 import axios from "axios";
 import io from "socket.io-client";
 
-const connectionObject = {
-  withCredentials: true,
-  autoConnect: false,
-};
-const socket = io.connect("http://localhost:3001", connectionObject);
-
 const Todo = ({ todo, status }) => {
   let color;
   if (status == "Open") {
@@ -32,7 +26,7 @@ const Todo = ({ todo, status }) => {
 
 const Member = ({ username, imageContent, contentType }) => {
   return (
-    <div className="flex flex-row items-center justify-between mx-auto w-[150px]">
+    <div className="flex flex-row items-center justify-between mt-3 mx-auto w-[150px]">
       <span>{capitalizeFirstLetter(username)}</span>
       <AvatarImage imageContent={imageContent} contentType={contentType} />
     </div>
@@ -42,6 +36,26 @@ const Member = ({ username, imageContent, contentType }) => {
 const SingleProject = () => {
   const { id } = useParams();
   const [project, setProject] = useState(null);
+  const connectionObject = {
+    withCredentials: true,
+    autoConnect: false,
+    query: { projectId: id },
+  };
+  const socket = io.connect(baseUrl, connectionObject);
+  const connectProject = () => {
+    console.log(baseUrl + `/${id}`);
+    socket.connect(baseUrl + `/${id}`);
+    socket.emit("connectProject", {
+      message: `make a room`,
+      projectId: id,
+    });
+  };
+  const joinProject = () => {
+    socket.emit("joinProject", {
+      message: `Like to join the project ${id}`,
+      projectId: id,
+    });
+  };
   useEffect(() => {
     const fetchProject = async () => {
       try {
@@ -55,6 +69,7 @@ const SingleProject = () => {
   }, [id]);
   useEffect(() => {
     socket.connect();
+    connectProject();
     socket.on("newProjectData", (data) => {
       console.log(data);
       setProject(data);
@@ -68,13 +83,6 @@ const SingleProject = () => {
       socket.disconnect();
     };
   }, []);
-
-  const joinProject = () => {
-    socket.emit("joinProject", {
-      message: `Like to join the project ${id}`,
-      projectId: id,
-    });
-  };
 
   if (!project) {
     return <h1 className="pt-12">Loading Data...</h1>;
