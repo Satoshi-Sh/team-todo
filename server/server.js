@@ -156,6 +156,7 @@ io.use(extractToken);
 const projectNamespaces = {};
 
 function createProjectNamespace(projectId) {
+  console.log(projectNamespaces);
   if (!projectNamespaces[projectId]) {
     projectNamespaces[projectId] = io.of(`/${projectId}`);
     projectNamespaces[projectId].on("connection", (socket) => {
@@ -191,11 +192,11 @@ function createProjectNamespace(projectId) {
 
 io.on("connection", (socket) => {
   console.log(`User connected: ${socket.id}`);
-  socket.on("connectProject", (data) => {
-    const { projectId } = data;
-    createProjectNamespace(projectId);
-    console.log(`User joined Project: ${projectId}`);
-  });
+  const projectId = socket.handshake.query.projectId;
+  console.log(projectId);
+  createProjectNamespace(projectId);
+  console.log(`Project Room is ready ${projectId}`);
+  socket.emit("connectRoom", { message: "All good" });
   socket.on("disconnect", () => {
     console.log("Client disconnected");
   });

@@ -42,14 +42,7 @@ const SingleProject = () => {
     query: { projectId: id },
   };
   const socket = io.connect(baseUrl, connectionObject);
-  const connectProject = () => {
-    console.log(baseUrl + `/${id}`);
-    socket.connect(baseUrl + `/${id}`);
-    socket.emit("connectProject", {
-      message: `make a room`,
-      projectId: id,
-    });
-  };
+
   const joinProject = () => {
     socket.emit("joinProject", {
       message: `Like to join the project ${id}`,
@@ -69,7 +62,6 @@ const SingleProject = () => {
   }, [id]);
   useEffect(() => {
     socket.connect();
-    connectProject();
     socket.on("newProjectData", (data) => {
       console.log(data);
       setProject(data);
@@ -77,9 +69,18 @@ const SingleProject = () => {
     socket.on("joinProjectError", (data) => {
       console.error(data);
     });
+    socket.on("connectRoom", (data) => {
+      console.log(data);
+      if (!data.hasOwnProperty("error")) {
+        const projectSocket = io.connect(`${baseUrl}/${id}`, connectionObject);
+        projectSocket.connect();
+      }
+    });
     return () => {
       socket.off("newProjectData");
       socket.off("joinProjectError");
+      socket.off("roomReady");
+      socket.off("connectRoom");
       socket.disconnect();
     };
   }, []);
