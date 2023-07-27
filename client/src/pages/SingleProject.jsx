@@ -44,7 +44,7 @@ const SingleProject = () => {
   const socket = io.connect(baseUrl, connectionObject);
   const projectSocket = io.connect(`${baseUrl}/${id}`, connectionObject);
 
-  const joinProject = () => {
+  const joinProject = (projectSocket) => {
     if (projectSocket.connected) {
       projectSocket.emit("joinProject", {
         message: `Like to join the project ${id}`,
@@ -67,10 +67,21 @@ const SingleProject = () => {
   }, [id]);
   useEffect(() => {
     socket.connect();
+    socket.on("connect", () => {
+      console.log("Socket connected");
+      console.log("socket.connected:", socket.connected);
+    });
     socket.on("connectRoom", (data) => {
+      console.log(data);
       if (!data.hasOwnProperty("error")) {
-        console.log("working...");
+        console.log("Before projectSocket.connect()");
+        projectSocket.on("connect", () => {
+          console.log("Project Socket connected");
+          console.log("Projecsocket.connected:", socket.connected);
+        });
         projectSocket.connect();
+        console.log(projectSocket.connected);
+        console.log("After projectSocket.connect()");
         projectSocket.on("newProjectData", (data) => {
           console.log(data);
           setProject(data);
@@ -88,7 +99,7 @@ const SingleProject = () => {
       socket.disconnect();
       projectSocket.disconnect();
     };
-  }, []);
+  }, [id]);
 
   if (!project) {
     return <h1 className="pt-12">Loading Data...</h1>;
@@ -149,7 +160,7 @@ const SingleProject = () => {
         {/* if not the owner and already are team member */}
         <button
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold m-12 py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-          onClick={joinProject}
+          onClick={() => joinProject(projectSocket)}
         >
           Join
         </button>

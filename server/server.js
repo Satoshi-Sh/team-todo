@@ -163,9 +163,8 @@ function createProjectNamespace(projectId) {
 
       console.log(`User connected to Project: ${projectId}`);
       socket.on("joinProject", async (data) => {
-        const { message } = data;
-        console.log(`${socket.user.username}: ${message}`);
         try {
+          const { message } = data;
           response = await addMember(projectId, socket.user._id);
           console.log(response);
           if ("message" in response) {
@@ -195,7 +194,6 @@ io.on("connection", (socket) => {
   console.log(projectId);
   createProjectNamespace(projectId);
   console.log(`Project Room is ready ${projectId}`);
-  console.log(projectNamespaces);
   socket.emit("connectRoom", { message: "All good" });
   socket.on("disconnect", () => {
     console.log("Client disconnected");
