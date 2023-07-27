@@ -42,12 +42,17 @@ const SingleProject = () => {
     query: { projectId: id },
   };
   const socket = io.connect(baseUrl, connectionObject);
+  const projectSocket = io.connect(`${baseUrl}/${id}`, connectionObject);
 
   const joinProject = () => {
-    socket.emit("joinProject", {
-      message: `Like to join the project ${id}`,
-      projectId: id,
-    });
+    if (projectSocket.connected) {
+      projectSocket.emit("joinProject", {
+        message: `Like to join the project ${id}`,
+        projectId: id,
+      });
+    } else {
+      console.error("Socket not connected. Unable to join project.");
+    }
   };
   useEffect(() => {
     const fetchProject = async () => {
@@ -62,26 +67,26 @@ const SingleProject = () => {
   }, [id]);
   useEffect(() => {
     socket.connect();
-    socket.on("newProjectData", (data) => {
-      console.log(data);
-      setProject(data);
-    });
-    socket.on("joinProjectError", (data) => {
-      console.error(data);
-    });
     socket.on("connectRoom", (data) => {
-      console.log(data);
       if (!data.hasOwnProperty("error")) {
-        const projectSocket = io.connect(`${baseUrl}/${id}`, connectionObject);
+        console.log("working...");
         projectSocket.connect();
+        projectSocket.on("newProjectData", (data) => {
+          console.log(data);
+          setProject(data);
+        });
+        projectSocket.on("joinProjectError", (data) => {
+          console.error(data);
+        });
       }
     });
     return () => {
-      socket.off("newProjectData");
-      socket.off("joinProjectError");
+      projectSocket.off("newProjectData");
+      projectSocket.off("joinProjectError");
       socket.off("roomReady");
       socket.off("connectRoom");
       socket.disconnect();
+      projectSocket.disconnect();
     };
   }, []);
 

@@ -156,14 +156,13 @@ io.use(extractToken);
 const projectNamespaces = {};
 
 function createProjectNamespace(projectId) {
-  console.log(projectNamespaces);
   if (!projectNamespaces[projectId]) {
     projectNamespaces[projectId] = io.of(`/${projectId}`);
     projectNamespaces[projectId].on("connection", (socket) => {
       // Handle socket events within this project's namespace
+
       console.log(`User connected to Project: ${projectId}`);
       socket.on("joinProject", async (data) => {
-        // Handle joinProject event within this project's namespace
         const { message } = data;
         console.log(`${socket.user.username}: ${message}`);
         try {
@@ -196,6 +195,7 @@ io.on("connection", (socket) => {
   console.log(projectId);
   createProjectNamespace(projectId);
   console.log(`Project Room is ready ${projectId}`);
+  console.log(projectNamespaces);
   socket.emit("connectRoom", { message: "All good" });
   socket.on("disconnect", () => {
     console.log("Client disconnected");
