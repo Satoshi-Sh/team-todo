@@ -48,6 +48,7 @@ async function insertSampleData() {
       owner: member._id,
       members: [member._id],
       description: "Sample project description",
+      due: "2023-09-01",
       image: image2._id,
     });
 
@@ -59,6 +60,9 @@ async function insertSampleData() {
       project: project._id,
       status: "Open",
     });
+
+    project.todos = [todo._id];
+    await project.save();
 
     console.log("Sample data inserted successfully");
   } catch (error) {
