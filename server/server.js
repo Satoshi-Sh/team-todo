@@ -54,43 +54,47 @@ app.use(express.json());
 
 //signup
 
-app.post("/api/signup", upload.single("selectedFile"), async (req, res) => {
-  try {
-    // todo when file is not attached by the user
-    let imageId;
-    if (!req.file) {
-      // use default image id
-      imageId = await getDefaultAvatarID();
-    } else {
-      // error message when file is too big?
-      imageId = await uploadImage(req.file);
-    }
-    const { username, email, password } = req.body;
-    const hash = await hashPassword(password);
-    const newMember = new Member({
-      username,
-      email,
-      password: hash,
-      avatar: imageId,
-    });
-    await newMember.save();
+app.post(
+  "/api/auth/signup",
+  upload.single("selectedFile"),
+  async (req, res) => {
+    try {
+      // todo when file is not attached by the user
+      let imageId;
+      if (!req.file) {
+        // use default image id
+        imageId = await getDefaultAvatarID();
+      } else {
+        // error message when file is too big?
+        imageId = await uploadImage(req.file);
+      }
+      const { username, email, password } = req.body;
+      const hash = await hashPassword(password);
+      const newMember = new Member({
+        username,
+        email,
+        password: hash,
+        avatar: imageId,
+      });
+      await newMember.save();
 
-    const token = await generateToken(username);
-    const expirationTime = new Date(Date.now() + 60 * 60 * 1000);
-    res.cookie("authToken", token, { expires: expirationTime });
-    const user = await getUser(username);
-    res.json({ message: `${username} is created.`, user });
-  } catch (error) {
-    console.error(error);
-    if (error.code === 11000) {
-      res.json({ error: "Duplicate username" });
-    } else {
-      res.json({ error: "Something went wrong." });
+      const token = await generateToken(username);
+      const expirationTime = new Date(Date.now() + 60 * 60 * 1000);
+      res.cookie("authToken", token, { expires: expirationTime });
+      const user = await getUser(username);
+      res.json({ message: `${username} is created.`, user });
+    } catch (error) {
+      console.error(error);
+      if (error.code === 11000) {
+        res.json({ error: "Duplicate username" });
+      } else {
+        res.json({ error: "Something went wrong." });
+      }
     }
   }
-});
-//login
-app.post("/api/login", async (req, res) => {
+);
+//login]
+app.post("/api/auth/login", async (req, res) => {
   try {
     const { username, password } = req.body;
     const user = await getUser(username);
@@ -110,7 +114,7 @@ app.post("/api/login", async (req, res) => {
 });
 
 //logout
-app.get("/api/logout", (req, res) => {
+app.get("/api/auth/logout", (req, res) => {
   res.clearCookie("authToken", { path: "/" });
   res.json({ message: "Cookie Deleted" });
 });
@@ -130,7 +134,7 @@ app.get("/api/projects", async (req, res) => {
   }
 });
 // get a project by id
-app.get("/api/project/:id", async (req, res) => {
+app.get("/api/projects/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const project = await Project.findById(id)
@@ -225,7 +229,7 @@ io.on("connection", (socket) => {
 
 // create new project
 app.post(
-  "/api/project",
+  "/api/projects",
   upload.single("selectedFile"),
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {

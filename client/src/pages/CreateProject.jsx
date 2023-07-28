@@ -97,7 +97,7 @@ const CreateProject = () => {
     formData.append("todos", JSON.stringify(todos));
     formData.append("selectedFile", selectedFile);
     try {
-      const res = await axios.post(`${baseUrl}/api/project`, formData, {
+      const res = await axios.post(`${baseUrl}/api/projects`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

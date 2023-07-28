@@ -46,7 +46,7 @@ async function insertSampleData() {
     const project = await Project.create({
       title: "Sample Project",
       owner: member._id,
-      members: [member._id],
+      members: [],
       description: "Sample project description",
       due: "2023-09-01",
       image: image2._id,

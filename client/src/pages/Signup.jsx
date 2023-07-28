@@ -36,7 +36,7 @@ const Signup = () => {
     formData.append("selectedFile", selectedFile);
 
     try {
-      const res = await axios.post(`${baseUrl}/api/signup`, formData, {
+      const res = await axios.post(`${baseUrl}/api/auth/signup`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

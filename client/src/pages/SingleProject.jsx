@@ -57,7 +57,7 @@ const SingleProject = () => {
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const response = await axios.get(`${baseUrl}/api/project/${id}`);
+        const response = await axios.get(`${baseUrl}/api/projects/${id}`);
         setProject(response.data);
       } catch (err) {
         console.error("Error fetching project:", err);
