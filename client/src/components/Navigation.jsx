@@ -12,7 +12,7 @@ const LogoutButton = () => {
   const navigation = useNavigate();
   const handleClick = async () => {
     try {
-      const res = await axios.get(`${baseUrl}/api/logout`);
+      const res = await axios.get(`${baseUrl}/api/auth/logout`);
       if ("error" in res.data) {
         console.log(res.data.error);
       } else {
@@ -46,7 +46,6 @@ function Navigation() {
   };
 
   const { user } = useContext(UserContext);
-
   return (
     <nav className="flex fixed w-full items-center justify-between flex-wrap bg-teal-500 p-6">
       <Link
@@ -71,8 +70,10 @@ function Navigation() {
         </button>
         {user && (
           <AvatarImage
+            key={user.avatar._id}
             imageContent={user.avatar.imageContent}
             contentType={user.avatar.contentType}
+            userId={user._id}
           />
         )}
       </div>
@@ -97,7 +98,7 @@ function Navigation() {
                 Create Project
               </Link>
               <Link
-                to={`/account/${user._id}`}
+                to={`/update-account/${user._id}`}
                 className="block mt-4 lg:inline-block lg:mt-0 text-teal-200 hover:text-white mr-4"
               >
                 Account
@@ -110,13 +111,13 @@ function Navigation() {
           <div className="flex flex-row gap-4">
             <LogoutButton />
             {user && (
-              <Link to={`/account/${user._id}`}>
-                <AvatarImage
-                  imageContent={user.avatar.imageContent}
-                  contentType={user.avatar.contentType}
-                  extraClass={"hidden lg:block"}
-                />
-              </Link>
+              <AvatarImage
+                key={user.avatar._id}
+                imageContent={user.avatar.imageContent}
+                contentType={user.avatar.contentType}
+                userId={user._id}
+                extraClass={"hidden lg:block"}
+              />
             )}
           </div>
         ) : (

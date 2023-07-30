@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Buffer } from "buffer";
-const AvatarImage = ({ imageContent, contentType, extraClass }) => {
+import { Link } from "react-router-dom";
+const AvatarImage = ({ imageContent, contentType, userId, extraClass }) => {
   const [imageUrl, setImageUrl] = useState("");
 
   useEffect(() => {
@@ -11,15 +12,19 @@ const AvatarImage = ({ imageContent, contentType, extraClass }) => {
   }, []);
 
   return (
-    <img
-      className={
-        extraClass
-          ? "w-8 h-8 rounded-full " + extraClass
-          : "w-8 h-8 rounded-full "
-      }
-      src={imageUrl}
-      alt="avatar"
-    />
+    <>
+      <Link to={`/update-account/${userId}`}>
+        <img
+          className={
+            extraClass
+              ? "w-8 h-8 rounded-full " + extraClass
+              : "w-8 h-8 rounded-full "
+          }
+          src={imageUrl}
+          alt="avatar"
+        />
+      </Link>
+    </>
   );
 };
 

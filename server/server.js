@@ -37,7 +37,7 @@ const {
   extractToken,
 } = require("./utils/auth");
 const image = require("./models/image");
-const { MongoCompatibilityError } = require("mongodb");
+
 // multer
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -106,11 +106,8 @@ app.patch(
       // remove old image and add new
       if (req.file) {
         // delete old image if it's not defaul avatar
-        if (
-          member.avatar.fileName &&
-          member.avatar.fileName !== "default-user-image.png"
-        ) {
-          Image.findByIdAndDelete(member.avatar._id);
+        if (!member.avatar.fileName) {
+          await Image.findByIdAndDelete(member.avatar._id);
         }
         const imageId = await uploadImage(req.file);
         member.avatar = imageId;
