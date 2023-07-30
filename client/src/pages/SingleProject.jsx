@@ -36,6 +36,7 @@ const Member = ({ username, imageContent, contentType }) => {
 const SingleProject = () => {
   const { id } = useParams();
   const [project, setProject] = useState(null);
+  const [connected, setConnected] = useState(false);
   const connectionObject = {
     withCredentials: true,
     autoConnect: false,
@@ -44,8 +45,9 @@ const SingleProject = () => {
   const socket = io.connect(baseUrl, connectionObject);
   const projectSocket = io.connect(`${baseUrl}/${id}`, connectionObject);
 
-  const joinProject = (projectSocket) => {
-    if (projectSocket.connected) {
+  const joinProject = () => {
+    if (connected) {
+      console.log("send a signal...");
       projectSocket.emit("joinProject", {
         message: `Like to join the project ${id}`,
         projectId: id,
@@ -76,12 +78,17 @@ const SingleProject = () => {
       if (!data.hasOwnProperty("error")) {
         console.log("Before projectSocket.connect()");
         projectSocket.on("connect", () => {
-          console.log("Project Socket connected");
           console.log("Projecsocket.connected:", socket.connected);
+          setConnected(true);
+          socket.disconnect();
         });
         projectSocket.connect();
-        console.log(projectSocket.connected);
-        console.log("After projectSocket.connect()");
+
+        projectSocket.on("connect", () => {
+          console.log("ProjectSocket connected");
+          console.log("Projectsocket.connected:", projectSocket.connected);
+          projectSocket.emit("greeting", { message: "hello" });
+        });
         projectSocket.on("newProjectData", (data) => {
           console.log(data);
           setProject(data);
@@ -94,6 +101,7 @@ const SingleProject = () => {
     return () => {
       projectSocket.off("newProjectData");
       projectSocket.off("joinProjectError");
+      projectSocket.off("greeting");
       socket.off("roomReady");
       socket.off("connectRoom");
       socket.disconnect();
@@ -160,7 +168,7 @@ const SingleProject = () => {
         {/* if not the owner and already are team member */}
         <button
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold m-12 py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-          onClick={() => joinProject(projectSocket)}
+          onClick={() => joinProject()}
         >
           Join
         </button>
