@@ -38,7 +38,7 @@ function comparePassword(inputPassword, hash) {
 async function uploadImage(file) {
   try {
     const { buffer, mimetype } = file;
-    const newImage = new Image({ imageContent: buffer, mimetype });
+    const newImage = new Image({ imageContent: buffer, contentType: mimetype });
     await newImage.save();
     return newImage._id;
   } catch (error) {

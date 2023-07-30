@@ -97,11 +97,10 @@ function Navigation() {
                 Create Project
               </Link>
               <Link
-                //id=1 for now
-                to="/mytodo/1"
+                to={`/account/${user._id}`}
                 className="block mt-4 lg:inline-block lg:mt-0 text-teal-200 hover:text-white mr-4"
               >
-                My Todo
+                Account
               </Link>
             </>
           ) : null}
@@ -111,11 +110,13 @@ function Navigation() {
           <div className="flex flex-row gap-4">
             <LogoutButton />
             {user && (
-              <AvatarImage
-                imageContent={user.avatar.imageContent}
-                contentType={user.avatar.contentType}
-                extraClass={"hidden lg:block"}
-              />
+              <Link to={`/account/${user._id}`}>
+                <AvatarImage
+                  imageContent={user.avatar.imageContent}
+                  contentType={user.avatar.contentType}
+                  extraClass={"hidden lg:block"}
+                />
+              </Link>
             )}
           </div>
         ) : (

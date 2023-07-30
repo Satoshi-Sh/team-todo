@@ -7,13 +7,16 @@ const AvatarImage = ({ imageContent, contentType, extraClass }) => {
     const buffer = Buffer.from(imageContent);
     const base64String = buffer.toString("base64");
     const url = `data:${contentType};base64,${base64String}`;
-
     setImageUrl(url);
-  }, [imageContent]);
+  }, []);
 
   return (
     <img
-      className={"w-8 h-8 rounded-full " + extraClass}
+      className={
+        extraClass
+          ? "w-8 h-8 rounded-full " + extraClass
+          : "w-8 h-8 rounded-full "
+      }
       src={imageUrl}
       alt="avatar"
     />
