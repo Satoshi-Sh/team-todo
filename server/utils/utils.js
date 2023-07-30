@@ -70,6 +70,9 @@ async function getDefaultProjectImageID() {
 async function getUser(username) {
   try {
     const member = await Member.findOne({ username });
+    if (!member) {
+      throw new Error("User not found");
+    }
     return member.populate("avatar");
   } catch (error) {
     console.error(error);

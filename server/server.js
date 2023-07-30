@@ -36,6 +36,8 @@ const {
   generateToken,
   extractToken,
 } = require("./utils/auth");
+const image = require("./models/image");
+const { MongoCompatibilityError } = require("mongodb");
 // multer
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -59,7 +61,7 @@ app.post(
   upload.single("selectedFile"),
   async (req, res) => {
     try {
-      // todo when file is not attached by the user
+      // when file is not attached by the user
       let imageId;
       if (!req.file) {
         // use default image id
@@ -93,7 +95,49 @@ app.post(
     }
   }
 );
-//login]
+app.patch(
+  "/api/auth/signup",
+  upload.single("selectedFile"),
+  async (req, res) => {
+    //if no file keep original
+    try {
+      const { username, email, userId } = req.body;
+      const member = await Member.findById(userId).populate("avatar");
+      // remove old image and add new
+      if (req.file) {
+        // delete old image if it's not defaul avatar
+        if (
+          member.avatar.fileName &&
+          member.avatar.fileName !== "default-user-image.png"
+        ) {
+          Image.findByIdAndDelete(member.avatar._id);
+        }
+        const imageId = await uploadImage(req.file);
+        member.avatar = imageId;
+      }
+
+      member.email = email;
+      member.username = username;
+
+      await member.save();
+      const token = await generateToken(username);
+      const expirationTime = new Date(Date.now() + 60 * 60 * 1000);
+      res.cookie("authToken", token, { expires: expirationTime });
+      const user = await getUser(member.username);
+      res.send({
+        user,
+        message: `${member.username} updated`,
+      });
+      // delete old image if it's not default avatar image
+      if (req.file) {
+      }
+    } catch (error) {
+      console.error(error);
+      res.send({ error: "something wrong" });
+    }
+  }
+);
+//login
 app.post("/api/auth/login", async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -115,8 +159,13 @@ app.post("/api/auth/login", async (req, res) => {
 
 //logout
 app.get("/api/auth/logout", (req, res) => {
-  res.clearCookie("authToken", { path: "/" });
-  res.json({ message: "Cookie Deleted" });
+  try {
+    res.clearCookie("authToken", { path: "/" });
+    res.json({ message: "Cookie Deleted" });
+  } catch (err) {
+    console.error(err);
+    res.json({ error: "something went wrong" });
+  }
 });
 
 //////Projects
