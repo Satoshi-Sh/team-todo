@@ -207,6 +207,7 @@ const projectNamespaces = {};
 function createProjectNamespace(projectId) {
   if (!projectNamespaces[projectId]) {
     projectNamespaces[projectId] = io.of(`/${projectId}`);
+    projectNamespaces[projectId].use(extractToken);
     projectNamespaces[projectId].on("connection", (socket) => {
       // Handle socket events within this project's namespace
       console.log(`User connected to Project: ${projectId}`);
@@ -217,6 +218,7 @@ function createProjectNamespace(projectId) {
       socket.on("joinProject", async (data) => {
         try {
           const { message } = data;
+          console.log(socket.user);
           response = await addMember(projectId, socket.user._id);
           console.log(response);
           if ("message" in response) {
