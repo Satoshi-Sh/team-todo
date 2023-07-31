@@ -30,6 +30,8 @@ const {
   comparePassword,
   getTodoIds,
   addMember,
+  emitNewData,
+  sendError,
 } = require("./utils/utils");
 const {
   configurePassport,
@@ -37,6 +39,7 @@ const {
   extractToken,
 } = require("./utils/auth");
 const image = require("./models/image");
+const project = require("./models/project");
 
 // multer
 const storage = multer.memoryStorage();
@@ -212,30 +215,29 @@ function createProjectNamespace(projectId) {
       // Handle socket events within this project's namespace
       console.log(`User connected to Project: ${projectId}`);
 
-      socket.on("greeting", (data) => {
-        console.log(data);
-      });
       socket.on("joinProject", async (data) => {
         try {
-          const { message } = data;
-          console.log(socket.user);
           response = await addMember(projectId, socket.user._id);
-          console.log(response);
           if ("message" in response) {
-            const newProject = await Project.findById(projectId)
-              .populate("owner")
-              .populate("image")
-              .populate({ path: "owner", populate: { path: "avatar" } })
-              .populate("members")
-              .populate({ path: "members", populate: { path: "avatar" } })
-              .populate("todos");
-            projectNamespaces[projectId].emit("newProjectData", newProject);
+            emitNewData(projectNamespaces[projectId], projectId);
           }
         } catch (err) {
           console.error("Error adding member to project: ", err);
-          projectNamespaces[projectId].emit("joinProjectError", {
-            errorMessage: "Failed to join the project",
-          });
+          sendError("Failed to join the project", projectNamespaces[projectId]);
+        }
+      });
+      socket.on("leaveProject", async (data) => {
+        try {
+          const project = await Project.findById(projectId);
+          project.members.pull({ _id: socket.user._id });
+          await project.save();
+          emitNewData(projectNamespaces[projectId], projectId);
+        } catch (error) {
+          console.error(error);
+          sendError(
+            "Failed to leave the project",
+            projectNamespaces[projectId]
+          );
         }
       });
     });

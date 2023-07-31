@@ -111,6 +111,26 @@ async function addMember(projectId, userId) {
   }
 }
 
+const emitNewData = async (socket, projectId) => {
+  const newProject = await Project.findById(projectId)
+    .populate("owner")
+    .populate("image")
+    .populate({ path: "owner", populate: { path: "avatar" } })
+    .populate("members")
+    .populate({ path: "members", populate: { path: "avatar" } })
+    .populate("todos");
+  if (!newProject) {
+    throw new Error("No poject found...");
+  }
+  socket.emit("newProjectData", newProject);
+};
+
+const sendError = (message, projectSocket) => {
+  projectSocket.emit("projectError", {
+    errorMessage: message,
+  });
+};
+
 module.exports = {
   uploadImage,
   getDefaultAvatarID,
@@ -120,4 +140,6 @@ module.exports = {
   comparePassword,
   getTodoIds,
   addMember,
+  emitNewData,
+  sendError,
 };

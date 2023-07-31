@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import { useParams } from "react-router-dom";
 import AvatarImage from "../components/AvatarImage";
+import { UserContext } from "../context/UserContext";
 import { capitalizeFirstLetter } from "../utils";
 import ProjectImage from "../components/ProjectImage";
 import { baseUrl } from "../constant/constant";
@@ -36,7 +37,8 @@ const Member = ({ username, imageContent, contentType }) => {
 const SingleProject = () => {
   const { id } = useParams();
   const [project, setProject] = useState(null);
-  const [connected, setConnected] = useState(false);
+  const [isMember, setIsMember] = useState(false);
+  const { user } = useContext(UserContext);
   const connectionObject = {
     withCredentials: true,
     autoConnect: false,
@@ -50,19 +52,29 @@ const SingleProject = () => {
   const joinProject = () => {
     const projectSocket = projectSocketRef.current;
     if (projectSocket.connected) {
-      console.log("send a signal...");
-      projectSocket.emit("joinProject", {
-        message: `Like to join the project ${id}`,
-        projectId: id,
-      });
+      projectSocket.emit("joinProject");
     } else {
       console.error("Socket not connected. Unable to join project.");
+    }
+  };
+  const leaveProject = () => {
+    const projectSocket = projectSocketRef.current;
+    if (projectSocket.connected) {
+      projectSocket.emit("leaveProject");
+    } else {
+      console.error("Socket not connected. Unable to leave project.");
     }
   };
   useEffect(() => {
     const fetchProject = async () => {
       try {
         const response = await axios.get(`${baseUrl}/api/projects/${id}`);
+        // check if the user is the member of the project
+        for (let member of response.data.members) {
+          if (user._id === member._id) {
+            setIsMember(true);
+          }
+        }
         setProject(response.data);
       } catch (err) {
         console.error("Error fetching project:", err);
@@ -75,38 +87,38 @@ const SingleProject = () => {
     const projectSocket = projectSocketRef.current;
     socket.connect();
     socket.on("connect", () => {
-      console.log("Socket connected");
       console.log("socket.connected:", socket.connected);
     });
     socket.on("connectRoom", (data) => {
-      console.log(data);
       if (!data.hasOwnProperty("error")) {
-        console.log("Before projectSocket.connect()");
         projectSocket.on("connect", () => {
           console.log("Projecsocket.connected:", socket.connected);
-          setConnected(true);
           socket.disconnect();
         });
         projectSocket.connect();
 
-        projectSocket.on("connect", () => {
-          console.log("ProjectSocket connected");
-          console.log("Projectsocket.connected:", projectSocket.connected);
-          projectSocket.emit("greeting", { message: "hello" });
-        });
         projectSocket.on("newProjectData", (data) => {
-          console.log(data);
+          let check = false;
+          for (let member of data.members) {
+            if (user._id === member._id) {
+              setIsMember(true);
+              check = true;
+            }
+          }
+          if (!check) {
+            setIsMember(false);
+          }
           setProject(data);
         });
-        projectSocket.on("joinProjectError", (data) => {
+        projectSocket.on("projectError", (data) => {
           console.error(data);
         });
       }
     });
     return () => {
       projectSocket.off("newProjectData");
-      projectSocket.off("joinProjectError");
-      projectSocket.off("greeting");
+      projectSocket.off("projectError");
+
       socket.off("roomReady");
       socket.off("connectRoom");
       socket.disconnect();
@@ -171,12 +183,21 @@ const SingleProject = () => {
       </div>
       <div>
         {/* if not the owner and already are team member */}
-        <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold m-12 py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-          onClick={() => joinProject()}
-        >
-          Join
-        </button>
+        {isMember ? (
+          <button
+            className="bg-red-400 hover:bg-red-500 text-white font-bold m-12 py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            onClick={() => leaveProject()}
+          >
+            Leave
+          </button>
+        ) : (
+          <button
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold m-12 py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            onClick={() => joinProject()}
+          >
+            Join
+          </button>
+        )}
       </div>
     </div>
   );
