@@ -9,7 +9,7 @@ const AvatarImage = ({ imageContent, contentType, userId, extraClass }) => {
     const base64String = buffer.toString("base64");
     const url = `data:${contentType};base64,${base64String}`;
     setImageUrl(url);
-  }, []);
+  }, [imageContent]);
 
   return (
     <>
