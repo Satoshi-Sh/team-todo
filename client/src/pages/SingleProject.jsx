@@ -8,21 +8,63 @@ import { baseUrl } from "../constant/constant";
 import axios from "axios";
 import io from "socket.io-client";
 
-const Todo = ({ todo, status }) => {
-  let color;
-  if (status == "Open") {
-    color = "text-emerald-300";
-  } else if (status == "Assigned") {
-    color = "text-gray-400";
+const Todo = ({ todo, isMember, projectSocket }) => {
+  const assignTask = () => {
+    projectSocket.emit("assignTask", { todoId: todo._id });
+  };
+  if (!isMember) {
+    return (
+      <div className="w-2/3 max-w-[400px] text-left flex flex-row justify-between flex-wrap">
+        <span className="whitespace-nowrap w-[150px]">{todo.title}</span>
+        <span className={`w-[100px] text-emerald-300`}>{todo.status}</span>
+      </div>
+    );
+  } else if (todo.status == "Open") {
+    return (
+      <>
+        <div className="w-2/3 max-w-[400px] text-left flex flex-row justify-between flex-wrap">
+          <span className="whitespace-nowrap w-[150px]">{todo.title}</span>
+          <span className={`w-[100px] text-emerald-300`}>{todo.status}</span>
+        </div>
+        <div>
+          <button
+            onClick={assignTask}
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold m-3 py-1 px-4 rounded focus:outline-none focus:shadow-outline"
+          >
+            Assign
+          </button>
+        </div>
+      </>
+    );
+  } else if (todo.status == "Assigned") {
+    return (
+      <>
+        <div className="w-2/3 max-w-[400px] text-left flex flex-row justify-between flex-wrap">
+          <span className="whitespace-nowrap w-[150px]">{todo.title}</span>
+          <span className={`w-[100px] text-gray-400`}>{todo.status}</span>
+        </div>
+        <div>
+          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold m-3 py-1 px-4 rounded focus:outline-none focus:shadow-outline">
+            Mark Complete
+          </button>
+        </div>
+      </>
+    );
   } else {
-    color = "text-lime-500";
+    return (
+      <>
+        <div className="w-2/3 max-w-[400px] text-left flex flex-row justify-between flex-wrap">
+          <span className="whitespace-nowrap w-[150px]">{todo.title}</span>
+          <span className={`w-[100px] text-lime-500`}>{todo.status}</span>
+        </div>
+        <div>
+          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold m-3 py-1 px-4 rounded focus:outline-none focus:shadow-outline">
+            Unmark Complete
+          </button>
+        </div>
+      </>
+    );
   }
-  return (
-    <div className="w-2/3 max-w-[400px] text-left flex flex-row justify-between flex-wrap">
-      <span className="whitespace-nowrap w-[150px]">{todo}</span>
-      <span className={`w-[100px] ${color}`}>{status}</span>
-    </div>
-  );
 };
 
 const Member = ({ username, imageContent, contentType }) => {
@@ -93,7 +135,7 @@ const SingleProject = () => {
       if (!data.hasOwnProperty("error")) {
         projectSocket.on("connect", () => {
           console.log("Projecsocket.connected:", socket.connected);
-          socket.disconnect();
+          //socket.disconnect();
         });
         projectSocket.connect();
 
@@ -148,7 +190,12 @@ const SingleProject = () => {
           {project.todos.length > 0 &&
             project.todos.map((todo, index) => {
               return (
-                <Todo key={index} todo={todo.title} status={todo.status} />
+                <Todo
+                  key={index}
+                  todo={todo}
+                  projectSocket={projectSocketRef.current}
+                  isMember={isMember}
+                />
               );
             })}
         </div>

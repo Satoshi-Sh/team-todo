@@ -8,6 +8,7 @@ const socketIo = require("socket.io");
 const Member = require("./models/member");
 const Project = require("./models/project");
 const Image = require("./models/image");
+const Todo = require("./models/todo");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const multer = require("multer");
@@ -38,8 +39,6 @@ const {
   generateToken,
   extractToken,
 } = require("./utils/auth");
-const image = require("./models/image");
-const project = require("./models/project");
 
 // multer
 const storage = multer.memoryStorage();
@@ -238,6 +237,20 @@ function createProjectNamespace(projectId) {
             "Failed to leave the project",
             projectNamespaces[projectId]
           );
+        }
+      });
+      socket.on("assignTask", async (data) => {
+        try {
+          const userId = socket.user._id;
+          const { todoId } = data;
+          const newTodo = await Todo.findById(todoId);
+          newTodo.assignee = userId;
+          newTodo.status = "Assigned";
+          await newTodo.save();
+          emitNewData(projectNamespaces[projectId], projectId);
+        } catch (error) {
+          console.error(error);
+          sendError("Failed to assign a task.", socket);
         }
       });
     });

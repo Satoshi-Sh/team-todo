@@ -125,8 +125,8 @@ const emitNewData = async (socket, projectId) => {
   socket.emit("newProjectData", newProject);
 };
 
-const sendError = (message, projectSocket) => {
-  projectSocket.emit("projectError", {
+const sendError = (message, socket) => {
+  socket.emit("projectError", {
     errorMessage: message,
   });
 };
