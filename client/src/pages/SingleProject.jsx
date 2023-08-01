@@ -16,6 +16,13 @@ const Todo = ({ todo, isMember, projectSocket }) => {
   const completeTask = () => {
     projectSocket.emit("completeTask", { todoId: todo._id });
   };
+
+  const unassignTask = () => {
+    projectSocket.emit("unassignTask", { todoId: todo._id });
+  };
+  const unmarkComplete = () => {
+    projectSocket.emit("unmarkComplete", { todoId: todo._id });
+  };
   if (!isMember) {
     return (
       <div className="w-2/3 max-w-[400px] text-left flex flex-row justify-between flex-wrap">
@@ -57,7 +64,10 @@ const Todo = ({ todo, isMember, projectSocket }) => {
             >
               Mark Complete
             </button>
-            <button className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold m-3 py-1 px-4 rounded focus:outline-none focus:shadow-outline">
+            <button
+              onClick={unassignTask}
+              className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold m-3 py-1 px-4 rounded focus:outline-none focus:shadow-outline"
+            >
               Unassign
             </button>
           </div>
@@ -75,7 +85,10 @@ const Todo = ({ todo, isMember, projectSocket }) => {
         </div>
         {todo.assignee._id === user._id ? (
           <div>
-            <button className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold m-3 py-1 px-4 rounded focus:outline-none focus:shadow-outline">
+            <button
+              onClick={unmarkComplete}
+              className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold m-3 py-1 px-4 rounded focus:outline-none focus:shadow-outline"
+            >
               Unmark Complete
             </button>
           </div>

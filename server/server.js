@@ -254,13 +254,28 @@ function createProjectNamespace(projectId) {
           sendError("Failed to assign a task.", socket);
         }
       });
+      socket.on("unassignTask", async (data) => {
+        try {
+          const userId = socket.user._id;
+          const { todoId } = data;
+          const newTodo = await Todo.findById(todoId);
+          if (!newTodo.assignee.equals(userId)) {
+            throw new Error("This is not user's task.");
+          }
+          newTodo.assignee = null;
+          newTodo.status = "Open";
+          await newTodo.save();
+          emitNewData(projectNamespaces[projectId], projectId);
+        } catch (error) {
+          console.error(error);
+          sendError("Failed to unassign a task.", socket);
+        }
+      });
       socket.on("completeTask", async (data) => {
         try {
           const userId = socket.user._id;
           const { todoId } = data;
           const newTodo = await Todo.findById(todoId);
-          console.log(newTodo);
-          console.log(userId, newTodo.assignee);
           if (!newTodo.assignee.equals(userId)) {
             throw new Error("This is not user's task.");
           }
@@ -270,6 +285,22 @@ function createProjectNamespace(projectId) {
         } catch (error) {
           console.error(error);
           sendError("Failed to complete a task.", socket);
+        }
+      });
+      socket.on("unmarkComplete", async (data) => {
+        try {
+          const userId = socket.user._id;
+          const { todoId } = data;
+          const newTodo = await Todo.findById(todoId);
+          if (!newTodo.assignee.equals(userId)) {
+            throw new Error("This is not user's task.");
+          }
+          newTodo.status = "Assigned";
+          await newTodo.save();
+          emitNewData(projectNamespaces[projectId], projectId);
+        } catch (error) {
+          console.error(error);
+          sendError("Failed to unmark complete.", socket);
         }
       });
     });
