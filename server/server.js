@@ -191,7 +191,8 @@ app.get("/api/projects/:id", async (req, res) => {
       .populate({ path: "owner", populate: { path: "avatar" } })
       .populate("members")
       .populate({ path: "members", populate: { path: "avatar" } })
-      .populate("todos");
+      .populate("todos")
+      .populate({ path: "todos", populate: { path: "assignee" } });
     if (!project) {
       return res.status(404).json({ error: "Project not found" });
     }
@@ -251,6 +252,24 @@ function createProjectNamespace(projectId) {
         } catch (error) {
           console.error(error);
           sendError("Failed to assign a task.", socket);
+        }
+      });
+      socket.on("completeTask", async (data) => {
+        try {
+          const userId = socket.user._id;
+          const { todoId } = data;
+          const newTodo = await Todo.findById(todoId);
+          console.log(newTodo);
+          console.log(userId, newTodo.assignee);
+          if (!newTodo.assignee.equals(userId)) {
+            throw new Error("This is not user's task.");
+          }
+          newTodo.status = "Completed";
+          await newTodo.save();
+          emitNewData(projectNamespaces[projectId], projectId);
+        } catch (error) {
+          console.error(error);
+          sendError("Failed to complete a task.", socket);
         }
       });
     });

@@ -118,7 +118,8 @@ const emitNewData = async (socket, projectId) => {
     .populate({ path: "owner", populate: { path: "avatar" } })
     .populate("members")
     .populate({ path: "members", populate: { path: "avatar" } })
-    .populate("todos");
+    .populate("todos")
+    .populate({ path: "todos", populate: { path: "assignee" } });
   if (!newProject) {
     throw new Error("No poject found...");
   }

@@ -9,8 +9,12 @@ import axios from "axios";
 import io from "socket.io-client";
 
 const Todo = ({ todo, isMember, projectSocket }) => {
+  const { user } = useContext(UserContext);
   const assignTask = () => {
     projectSocket.emit("assignTask", { todoId: todo._id });
+  };
+  const completeTask = () => {
+    projectSocket.emit("completeTask", { todoId: todo._id });
   };
   if (!isMember) {
     return (
@@ -41,13 +45,23 @@ const Todo = ({ todo, isMember, projectSocket }) => {
       <>
         <div className="w-2/3 max-w-[400px] text-left flex flex-row justify-between flex-wrap">
           <span className="whitespace-nowrap w-[150px]">{todo.title}</span>
-          <span className={`w-[100px] text-gray-400`}>{todo.status}</span>
+          <span
+            className={`w-[100px] text-gray-400`}
+          >{`${todo.status}: ${todo.assignee.username}`}</span>
         </div>
-        <div>
-          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold m-3 py-1 px-4 rounded focus:outline-none focus:shadow-outline">
-            Mark Complete
-          </button>
-        </div>
+        {todo.assignee._id === user._id ? (
+          <div>
+            <button
+              onClick={completeTask}
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold m-3 py-1 px-4 rounded focus:outline-none focus:shadow-outline"
+            >
+              Mark Complete
+            </button>
+            <button className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold m-3 py-1 px-4 rounded focus:outline-none focus:shadow-outline">
+              Unassign
+            </button>
+          </div>
+        ) : null}
       </>
     );
   } else {
@@ -55,13 +69,17 @@ const Todo = ({ todo, isMember, projectSocket }) => {
       <>
         <div className="w-2/3 max-w-[400px] text-left flex flex-row justify-between flex-wrap">
           <span className="whitespace-nowrap w-[150px]">{todo.title}</span>
-          <span className={`w-[100px] text-lime-500`}>{todo.status}</span>
+          <span className={`w-[100px] text-lime-500`}>
+            {todo.status} <span>{`By ${todo.assignee.username}`}</span>
+          </span>
         </div>
-        <div>
-          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold m-3 py-1 px-4 rounded focus:outline-none focus:shadow-outline">
-            Unmark Complete
-          </button>
-        </div>
+        {todo.assignee._id === user._id ? (
+          <div>
+            <button className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold m-3 py-1 px-4 rounded focus:outline-none focus:shadow-outline">
+              Unmark Complete
+            </button>
+          </div>
+        ) : null}
       </>
     );
   }
