@@ -228,8 +228,18 @@ function createProjectNamespace(projectId) {
       });
       socket.on("leaveProject", async (data) => {
         try {
-          const project = await Project.findById(projectId);
+          const project = await Project.findById(projectId).populate("todos");
+          if (!project) {
+            throw new Error("Project not found");
+          }
           project.members.pull({ _id: socket.user._id });
+          for (let todo of project.todos) {
+            if (todo.assignee && todo.assignee.equals(socket.user._id)) {
+              todo.assignee = null;
+              todo.status = "Open";
+              await todo.save();
+            }
+          }
           await project.save();
           emitNewData(projectNamespaces[projectId], projectId);
         } catch (error) {

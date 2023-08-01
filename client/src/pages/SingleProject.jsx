@@ -23,28 +23,23 @@ const Todo = ({ todo, isMember, projectSocket }) => {
   const unmarkComplete = () => {
     projectSocket.emit("unmarkComplete", { todoId: todo._id });
   };
-  if (!isMember) {
-    return (
-      <div className="w-2/3 max-w-[400px] text-left flex flex-row justify-between flex-wrap">
-        <span className="whitespace-nowrap w-[150px]">{todo.title}</span>
-        <span className={`w-[100px] text-emerald-300`}>{todo.status}</span>
-      </div>
-    );
-  } else if (todo.status == "Open") {
+  if (todo.status == "Open") {
     return (
       <>
         <div className="w-2/3 max-w-[400px] text-left flex flex-row justify-between flex-wrap">
           <span className="whitespace-nowrap w-[150px]">{todo.title}</span>
           <span className={`w-[100px] text-emerald-300`}>{todo.status}</span>
         </div>
-        <div>
-          <button
-            onClick={assignTask}
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold m-3 py-1 px-4 rounded focus:outline-none focus:shadow-outline"
-          >
-            Assign
-          </button>
-        </div>
+        {isMember ? (
+          <div>
+            <button
+              onClick={assignTask}
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold m-3 py-1 px-4 rounded focus:outline-none focus:shadow-outline"
+            >
+              Assign
+            </button>
+          </div>
+        ) : null}
       </>
     );
   } else if (todo.status == "Assigned") {
