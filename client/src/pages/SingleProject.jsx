@@ -7,6 +7,7 @@ import ProjectImage from "../components/ProjectImage";
 import { baseUrl } from "../constant/constant";
 import axios from "axios";
 import io from "socket.io-client";
+import { Link } from "react-router-dom";
 
 const Todo = ({ todo, isMember, projectSocket }) => {
   const { user } = useContext(UserContext);
@@ -107,6 +108,7 @@ const SingleProject = () => {
   const [project, setProject] = useState(null);
   const [isMember, setIsMember] = useState(false);
   const { user } = useContext(UserContext);
+
   const connectionObject = {
     withCredentials: true,
     autoConnect: false,
@@ -210,6 +212,16 @@ const SingleProject = () => {
       />
       <p className="max-w-lg p-3 mx-auto">{project.description}</p>
       <div className="m-3">
+        {user._id == project.owner._id ? (
+          <div className="m-4">
+            <Link
+              to={`/update-project/${project._id}`}
+              className="border  hover:bg-blue-500 hover:text-white hover:font-bold p-2 rounded"
+            >
+              Update Project
+            </Link>
+          </div>
+        ) : null}
         <h3 className="italic text-xl m-2">Todos</h3>
 
         <div className="flex flex-col items-center">

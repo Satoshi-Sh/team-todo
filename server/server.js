@@ -97,6 +97,7 @@ app.post(
     }
   }
 );
+// account update
 app.patch(
   "/api/auth/signup",
   upload.single("selectedFile"),
@@ -202,6 +203,82 @@ app.get("/api/projects/:id", async (req, res) => {
     res.send({ message: "Something went wrong..." });
   }
 });
+
+// create new project
+app.post(
+  "/api/projects",
+  upload.single("selectedFile"),
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    try {
+      const owner = req.user["_id"];
+      const { title, due, description, todos } = req.body;
+      // todo when file is not attached by the user
+      let imageId;
+      if (!req.file) {
+        // use default image id
+        imageId = await getDefaultProjectImageID();
+      } else {
+        // error message when file is too big?
+        imageId = await uploadImage(req.file);
+      }
+      // add todos
+      const todoIds = await getTodoIds(todos);
+      // save project
+      const newProject = new Project({
+        title,
+        owner,
+        due,
+        description,
+        todos: todoIds,
+        image: imageId,
+      });
+      await newProject.save();
+      res.json({ message: `${title} is created.` });
+    } catch (err) {
+      console.error(err);
+      res.json({ message: err.message });
+    }
+  }
+);
+
+// update project
+
+app.patch(
+  "/api/projects/:projectId",
+  upload.single("selectedFile"),
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    try {
+      const { projectId } = req.params;
+      const owner = req.user["_id"];
+      const { title, due, description } = req.body;
+      const updatedProject = await Project.findById(projectId).populate(
+        "image"
+      );
+      if (!updatedProject.owner.equals(owner)) {
+        throw new Error("Only owner can edit the project..");
+      }
+      if (req.file) {
+        // error message when file is too big?
+        const imageId = await uploadImage(req.file);
+        // delete old one if it's not default
+        if (!updatedProject.image.fileName) {
+          await Image.findByIdAndDelete(updatedProject.image);
+        }
+        updatedProject.image = imageId;
+      }
+      updatedProject.title = title;
+      updatedProject.due = due;
+      updatedProject.description = description;
+      const project = await updatedProject.save();
+      res.json({ message: `${project.title} is updated.` });
+    } catch (err) {
+      console.error(err);
+      res.json({ message: err.message });
+    }
+  }
+);
 
 // add user info to socket
 io.use(extractToken);
@@ -327,44 +404,6 @@ io.on("connection", (socket) => {
     console.log("Client disconnected");
   });
 });
-
-// create new project
-app.post(
-  "/api/projects",
-  upload.single("selectedFile"),
-  passport.authenticate("jwt", { session: false }),
-  async (req, res) => {
-    try {
-      const owner = req.user["_id"];
-      const { title, due, description, todos } = req.body;
-      // todo when file is not attached by the user
-      let imageId;
-      if (!req.file) {
-        // use default image id
-        imageId = await getDefaultProjectImageID();
-      } else {
-        // error message when file is too big?
-        imageId = await uploadImage(req.file);
-      }
-      // add todos
-      const todoIds = await getTodoIds(todos);
-      // save project
-      const newProject = new Project({
-        title,
-        owner,
-        due,
-        description,
-        todos: todoIds,
-        image: imageId,
-      });
-      await newProject.save();
-      res.json({ message: `${title} is created.` });
-    } catch (err) {
-      console.error(err);
-      res.json({ message: err.message });
-    }
-  }
-);
 
 server.listen(port, () => {
   console.log(`Server listening on port ${port}`);

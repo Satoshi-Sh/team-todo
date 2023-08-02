@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import CreateProject from "./pages/CreateProject";
 import SingleProject from "./pages/SingleProject";
 import Projects from "./pages/Projects";
+import UpdateProject from "./pages/UpdateProject";
 import { Route, Routes } from "react-router-dom";
 import { UserProvider } from "./context/UserContext";
 
@@ -22,6 +23,10 @@ function App() {
           <Route path="/update-account/:userId" element={<UpdateAccount />} />
           <Route path="/login" element={<Login />} />
           <Route path="/projects" element={<Projects />} />
+          <Route
+            path="/update-project/:projectId"
+            element={<UpdateProject />}
+          />
           <Route path="project/:id" element={<SingleProject />} />
           <Route path="create-project" element={<CreateProject />} />
         </Routes>
