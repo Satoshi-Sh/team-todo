@@ -3,6 +3,49 @@ import axios from "axios";
 import { baseUrl } from "../constant/constant";
 import { useNavigate, useParams } from "react-router-dom";
 
+const DeleteProject = ({ projectId }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const navigation = useNavigate();
+  const deleteProject = async () => {
+    const res = await axios.delete(`${baseUrl}/api/projects/${projectId}`);
+    if ("error" in res.data) {
+      console.log(res.data.error);
+    } else {
+      navigation("/projects");
+    }
+  };
+  return (
+    <div className="flex flex-col m-10 gap-4 items-center justify-center">
+      {isOpen ? (
+        <button
+          className="bg-slate-200 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          type="submit"
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          Cancel
+        </button>
+      ) : (
+        <button
+          className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          type="submit"
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          Delete Project
+        </button>
+      )}
+      {isOpen && (
+        <button
+          className="bg-red-500 hover:bg-red-700 block text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          type="submit"
+          onClick={deleteProject}
+        >
+          Confirm Delete
+        </button>
+      )}
+    </div>
+  );
+};
+
 const UpdateProject = () => {
   const [title, setTitle] = useState("");
   const [due, setDue] = useState("");
@@ -150,6 +193,7 @@ const UpdateProject = () => {
         </div>
       </form>
       <div className="text-red-500 m-20 text-center">{message && message}</div>
+      <DeleteProject projectId={projectId} />
     </div>
   );
 };

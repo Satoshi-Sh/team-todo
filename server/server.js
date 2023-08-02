@@ -280,6 +280,40 @@ app.patch(
   }
 );
 
+// delete project
+
+app.delete(
+  "/api/projects/:projectId",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    try {
+      const { projectId } = req.params;
+      const owner = req.user["_id"];
+      const deletedProject = await Project.findById(projectId).populate(
+        "image"
+      );
+
+      if (!deletedProject.owner.equals(owner)) {
+        throw new Error("Only owner can delete the project..");
+      }
+      // delete old image if it's not default
+      if (!deletedProject.image.fileName) {
+        await Image.findByIdAndDelete(deletedProject.image);
+      }
+      // delete all the todos
+      for (let todo of deletedProject.todos) {
+        await Todo.findByIdAndDelete(todo);
+      }
+      const deleted = await Project.findByIdAndDelete(projectId);
+
+      res.json({ message: `${deleted.title} is deleted.` });
+    } catch (err) {
+      console.error(err);
+      res.json({ error: err.message });
+    }
+  }
+);
+
 // add user info to socket
 io.use(extractToken);
 // websocket for each project
