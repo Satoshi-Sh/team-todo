@@ -17,7 +17,7 @@ const Project = (props) => {
       onClick={handleClick}
       id={data._id}
     >
-      <div className="h-[280px] grid place-items-center">
+      <div className="h-[280px] grid place-items-center overflow-clip">
         <ProjectImage
           imageContent={data.image.imageContent}
           contentType={data.image.contentType}

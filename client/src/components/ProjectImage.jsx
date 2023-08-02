@@ -13,7 +13,7 @@ const ProjectImage = ({ imageContent, contentType, extraClass }) => {
 
   return (
     <img
-      className={"w-full " + extraClass}
+      className={"w-full " + (extraClass ? extraClass : "")}
       src={imageUrl}
       alt="project header"
     />
