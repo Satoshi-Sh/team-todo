@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 import { useParams } from "react-router-dom";
 import AvatarImage from "../components/AvatarImage";
+import TodoUpdateModal from "../components/TodoUpdateModal";
 import { UserContext } from "../context/UserContext";
 import { capitalizeFirstLetter } from "../utils";
 import ProjectImage from "../components/ProjectImage";
@@ -238,6 +239,12 @@ const SingleProject = () => {
             })}
         </div>
       </div>
+      {user._id == project.owner._id ? (
+        <TodoUpdateModal
+          todos={project.todos}
+          projectSocketRef={projectSocketRef}
+        />
+      ) : null}
       <div className="m-3">
         <h3 className="italic text-xl m-2">Members</h3>
         {/* test with owner for now */}

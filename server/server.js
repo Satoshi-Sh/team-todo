@@ -424,6 +424,26 @@ function createProjectNamespace(projectId) {
           sendError("Failed to unmark complete.", socket);
         }
       });
+      socket.on("updateTodos", async (data) => {
+        try {
+          for (let todo of data) {
+            // existed todo
+            if (todo.hasOwnProperty("_id")) {
+              const updateTodo = await Todo.findById(todo._id);
+              updateTodo.title = todo.title;
+              await updateTodo.save();
+            }
+            // newTodo wrok on later
+            else {
+            }
+          }
+          // send updated project
+          emitNewData(projectNamespaces[projectId], projectId);
+        } catch (err) {
+          console.error(err);
+          sendError("Failed to update todos.", socket);
+        }
+      });
     });
   }
 }
