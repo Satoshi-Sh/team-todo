@@ -9,8 +9,10 @@ import { baseUrl } from "../constant/constant";
 import axios from "axios";
 import io from "socket.io-client";
 import { Link } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
 
-const Todo = ({ todo, isMember, projectSocket }) => {
+const Todo = ({ todo, isMember, projectSocket, isOwner }) => {
   const { user } = useContext(UserContext);
   const assignTask = () => {
     projectSocket.emit("assignTask", { todoId: todo._id });
@@ -24,6 +26,11 @@ const Todo = ({ todo, isMember, projectSocket }) => {
   };
   const unmarkComplete = () => {
     projectSocket.emit("unmarkComplete", { todoId: todo._id });
+  };
+
+  const deleteTodo = (e) => {
+    const todoId = e.target.parentNode.id;
+    projectSocket.emit("deleteTodo", { todoId: todoId });
   };
   if (todo.status == "Open") {
     return (
@@ -41,6 +48,15 @@ const Todo = ({ todo, isMember, projectSocket }) => {
               Assign
             </button>
           </div>
+        ) : null}
+        {isOwner ? (
+          <span id={todo._id} onClick={deleteTodo}>
+            <FontAwesomeIcon
+              id={todo._id}
+              icon={faTrash}
+              className="text-red-500 ml-auto cursor-pointer"
+            />
+          </span>
         ) : null}
       </>
     );
@@ -108,6 +124,7 @@ const SingleProject = () => {
   const { id } = useParams();
   const [project, setProject] = useState(null);
   const [isMember, setIsMember] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
   const { user } = useContext(UserContext);
 
   const connectionObject = {
@@ -140,13 +157,18 @@ const SingleProject = () => {
     const fetchProject = async () => {
       try {
         const response = await axios.get(`${baseUrl}/api/projects/${id}`);
+        const project = response.data;
+        // check if the user is owner or not
+        if (user._id === project.owner._id) {
+          setIsOwner(true);
+        }
         // check if the user is the member of the project
-        for (let member of response.data.members) {
+        for (let member of project.members) {
           if (user._id === member._id) {
             setIsMember(true);
           }
         }
-        setProject(response.data);
+        setProject(project);
       } catch (err) {
         console.error("Error fetching project:", err);
       }
@@ -213,7 +235,7 @@ const SingleProject = () => {
       />
       <p className="max-w-lg p-3 mx-auto">{project.description}</p>
       <div className="m-3">
-        {user._id == project.owner._id ? (
+        {isOwner ? (
           <div className="m-4">
             <Link
               to={`/update-project/${project._id}`}
@@ -234,12 +256,13 @@ const SingleProject = () => {
                   todo={todo}
                   projectSocket={projectSocketRef.current}
                   isMember={isMember}
+                  isOwner={isOwner}
                 />
               );
             })}
         </div>
       </div>
-      {user._id == project.owner._id ? (
+      {isOwner ? (
         <TodoUpdateModal
           todos={project.todos}
           projectSocketRef={projectSocketRef}

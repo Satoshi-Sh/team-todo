@@ -452,6 +452,24 @@ function createProjectNamespace(projectId) {
           sendError("Failed to update todos.", socket);
         }
       });
+      socket.on("deleteTodo", async (data) => {
+        try {
+          const { todoId } = data;
+          console.log(todoId);
+          // send updated project
+          const newProject = await project.findById(projectId);
+          if (!newProject) {
+            throw new Error("Project not found");
+          }
+          newProject.todos = newProject.todos.filter((id) => id !== todoId);
+          await newProject.save();
+          await Todo.findByIdAndDelete(todoId);
+          emitNewData(projectNamespaces[projectId], projectId);
+        } catch (err) {
+          console.error(err);
+          sendError("Failed to update todos.", socket);
+        }
+      });
     });
   }
 }
