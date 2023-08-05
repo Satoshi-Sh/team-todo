@@ -10,7 +10,20 @@ import axios from "axios";
 import io from "socket.io-client";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faTrash, faCheck } from "@fortawesome/free-solid-svg-icons";
+
+const checkProjectStatus = (project) => {
+  let count = 0;
+  for (let todo of project.todos) {
+    if (todo.status == "Completed") {
+      count++;
+    }
+  }
+  if (count == project.todos.length) {
+    return true;
+  }
+  return false;
+};
 
 const Todo = ({ todo, isMember, projectSocket, isOwner }) => {
   const { user } = useContext(UserContext);
@@ -91,7 +104,12 @@ const Todo = ({ todo, isMember, projectSocket, isOwner }) => {
     return (
       <>
         <div className="w-2/3 max-w-[400px] text-left flex flex-row justify-between flex-wrap">
-          <span className="whitespace-nowrap w-[150px]">{todo.title}</span>
+          <span className="whitespace-nowrap w-[150px]">
+            <span className="m-1 text-lime-500">
+              <FontAwesomeIcon icon={faCheck} />
+            </span>
+            {todo.title}
+          </span>
           <span className={`w-[100px] text-lime-500`}>
             {todo.status} <span>{`By ${todo.assignee.username}`}</span>
           </span>
@@ -127,6 +145,8 @@ const SingleProject = () => {
   const [isOwner, setIsOwner] = useState(false);
   const { user } = useContext(UserContext);
 
+  const [isCompleted, setIsCompleted] = useState(false);
+
   const connectionObject = {
     withCredentials: true,
     autoConnect: false,
@@ -153,11 +173,16 @@ const SingleProject = () => {
       console.error("Socket not connected. Unable to leave project.");
     }
   };
+
   useEffect(() => {
     const fetchProject = async () => {
       try {
         const response = await axios.get(`${baseUrl}/api/projects/${id}`);
         const project = response.data;
+        // check if todos are completed or not
+        if (checkProjectStatus(project)) {
+          setIsCompleted(true);
+        }
         // check if the user is owner or not
         if (user._id === project.owner._id) {
           setIsOwner(true);
@@ -198,6 +223,11 @@ const SingleProject = () => {
               check = true;
             }
           }
+          if (checkProjectStatus(data)) {
+            setIsCompleted(true);
+          } else {
+            setIsCompleted(false);
+          }
           if (!check) {
             setIsMember(false);
           }
@@ -225,6 +255,9 @@ const SingleProject = () => {
   return (
     <div className="pt-12 text-center">
       <h1 className="pt-20 mb-3 text-4xl font-extrabold">{project.title}</h1>
+      {isCompleted ? (
+        <h2 className="text-lime-400 text-3xl m-3">~ Project Completed ~</h2>
+      ) : null}
       <h2 className="mb-3 text-2xl text-gray-400 italic">
         Created by {project.owner.username}
       </h2>
