@@ -30,6 +30,7 @@ const {
   hashPassword,
   comparePassword,
   getTodoIds,
+  getTodoIds2,
   addMember,
   emitNewData,
   sendError,
@@ -39,6 +40,7 @@ const {
   generateToken,
   extractToken,
 } = require("./utils/auth");
+const project = require("./models/project");
 
 // multer
 const storage = multer.memoryStorage();
@@ -426,6 +428,7 @@ function createProjectNamespace(projectId) {
       });
       socket.on("updateTodos", async (data) => {
         try {
+          let newTodos = [];
           for (let todo of data) {
             // existed todo
             if (todo.hasOwnProperty("_id")) {
@@ -433,10 +436,15 @@ function createProjectNamespace(projectId) {
               updateTodo.title = todo.title;
               await updateTodo.save();
             }
-            // newTodo wrok on later
+            // newTodo
             else {
+              newTodos.push(todo.title);
             }
           }
+          const todoIds = await getTodoIds2(newTodos);
+          const updatedProject = await project.findById(projectId);
+          updatedProject.todos = [...updatedProject.todos, ...todoIds];
+          updatedProject.save();
           // send updated project
           emitNewData(projectNamespaces[projectId], projectId);
         } catch (err) {

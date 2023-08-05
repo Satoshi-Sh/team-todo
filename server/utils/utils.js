@@ -91,6 +91,16 @@ async function getTodoIds(todos) {
   return todoIds;
 }
 
+async function getTodoIds2(todos) {
+  const todoIds = [];
+  for (const title of todos) {
+    const newTodo = new Todo({ title });
+    await newTodo.save();
+    todoIds.push(newTodo._id);
+  }
+  return todoIds;
+}
+
 async function addMember(projectId, userId) {
   try {
     const project = await Project.findById(projectId)
@@ -140,6 +150,7 @@ module.exports = {
   hashPassword,
   comparePassword,
   getTodoIds,
+  getTodoIds2,
   addMember,
   emitNewData,
   sendError,

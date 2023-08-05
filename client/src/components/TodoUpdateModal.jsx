@@ -13,10 +13,10 @@ const UpdateField = ({ setData, data, index }) => {
     <div className="text-left">
       <input
         className="shadow appearance-none border rounded w-full m-3 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-        id={data[index]._id}
+        id={data[index] ? data[index]._id : null}
         type="text"
         placeholder="Enter todo"
-        value={data[index].title}
+        value={data[index] ? data[index].title : null}
         onChange={handleUpdate}
       />
     </div>
@@ -26,11 +26,40 @@ const UpdateField = ({ setData, data, index }) => {
 export default function TodoUpdateModal({ todos, projectSocketRef }) {
   const [showModal, setShowModal] = useState(false);
   const [data, setData] = useState(todos);
+  const [added, setAdded] = useState(0);
 
   const handleSave = () => {
+    //validation
+    for (let todo of data) {
+      console.log(todo);
+      if (todo.title == "") {
+        window.alert("Todo title cannot be blank..");
+        return;
+      }
+    }
     const projectSocket = projectSocketRef.current;
     projectSocket.emit("updateTodos", data);
+    setAdded(0);
     setShowModal(false);
+  };
+  const handleAdd = () => {
+    // add empty object
+    const newData = produce(data, (draft) => {
+      draft.push({ title: "" });
+    });
+    setData(newData);
+    setAdded(added + 1);
+  };
+  const removeAdd = () => {
+    if (added == 0) {
+      console.log("Don't delete existing to do here");
+      return;
+    }
+    const newData = produce(data, (draft) => {
+      draft.pop();
+    });
+    setData(newData);
+    setAdded(added - 1);
   };
 
   return (
@@ -75,6 +104,44 @@ export default function TodoUpdateModal({ todos, projectSocketRef }) {
                         />
                       );
                     })}
+                  <div className="flex flex-row gap-2 justify-center items-center m-3">
+                    <button
+                      onClick={handleAdd}
+                      className="p-0 w-10 h-8 bg-gray-500 rounded-full hover:bg-gray-400 active:shadow-lg mouse shadow transition ease-in duration-200 focus:outline-none"
+                    >
+                      <svg
+                        viewBox="0 0 20 20"
+                        enableBackground="new 0 0 20 20"
+                        className="w-6 h-6 inline-block"
+                      >
+                        <path
+                          fill="#FFFFFF"
+                          d="M16,10c0,0.553-0.048,1-0.601,1H11v4.399C11,15.951,10.553,16,10,16c-0.553,0-1-0.049-1-0.601V11H4.601
+                                    C4.049,11,4,10.553,4,10c0-0.553,0.049-1,0.601-1H9V4.601C9,4.048,9.447,4,10,4c0.553,0,1,0.048,1,0.601V9h4.399
+                                    C15.952,9,16,9.447,16,10z"
+                        />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={removeAdd}
+                      className={
+                        added == 0
+                          ? "p-0 w-10 h-8 bg-gray-400 rounded-full hover:bg-gray-400 active:shadow-lg mouse shadow transition ease-in duration-200 focus:outline-none"
+                          : "p-0 w-10 h-8 bg-gray-500 rounded-full hover:bg-gray-400 active:shadow-lg mouse shadow transition ease-in duration-200 focus:outline-none"
+                      }
+                    >
+                      <svg
+                        viewBox="0 0 20 20"
+                        enableBackground="new 0 0 20 20"
+                        className="w-6 h-6 inline-block"
+                      >
+                        <path
+                          fill="#FFFFFF"
+                          d="M16,10c0,0.553-0.048,1-0.601,1H4.601C4.049,11,4,10.553,4,10c0-0.553,0.049-1,0.601-1H15.399C15.952,9,16,9.447,16,10z"
+                        />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
                 {/*footer*/}
                 <div className="flex items-center justify-end p-6 border-t border-solid border-slate-200 rounded-b">
