@@ -71,8 +71,11 @@ app.post(
         // use default image id
         imageId = await getDefaultAvatarID();
       } else {
-        // error message when file is too big?
-        imageId = await uploadImage(req.file);
+        try {
+          imageId = await uploadImage(req.file);
+        } catch (err) {
+          res.status(500).json({ error: "Error uploading image." });
+        }
       }
       const { username, email, password } = req.body;
       const hash = await hashPassword(password);
@@ -92,9 +95,9 @@ app.post(
     } catch (error) {
       console.error(error);
       if (error.code === 11000) {
-        res.json({ error: "Duplicate username" });
+        res.status(409).json({ error: "Duplicate username" });
       } else {
-        res.json({ error: "Something went wrong." });
+        res.status(500).json({ error: "Failed to crate a new user." });
       }
     }
   }
