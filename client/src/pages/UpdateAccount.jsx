@@ -81,6 +81,16 @@ const UpdateAccount = () => {
       console.log(error);
     }
   };
+  if (!user) {
+    return (
+      <div className="pt-32 text-center">
+        <h1 className="text-2xl">Please login..</h1>
+        <Link className="text-blue-600 text-lg" to="/login">
+          Login
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-md mx-auto pt-48">

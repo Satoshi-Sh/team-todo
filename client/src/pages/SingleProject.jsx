@@ -176,6 +176,7 @@ const SingleProject = () => {
 
   useEffect(() => {
     const fetchProject = async () => {
+      if (!user) return;
       try {
         const response = await axios.get(`${baseUrl}/api/projects/${id}`);
         const project = response.data;
@@ -248,6 +249,16 @@ const SingleProject = () => {
       projectSocket.disconnect();
     };
   }, [id]);
+  if (!user) {
+    return (
+      <div className="pt-32 text-center">
+        <h1 className="text-2xl">Please login..</h1>
+        <Link className="text-blue-600 text-lg" to="/login">
+          Login
+        </Link>
+      </div>
+    );
+  }
 
   if (!project) {
     return <h1 className="pt-12">Loading Data...</h1>;

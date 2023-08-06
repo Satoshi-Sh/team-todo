@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import { UserContext } from "../context/UserContext";
 import axios from "axios";
 import { baseUrl } from "../constant/constant";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 
@@ -86,6 +87,7 @@ const CreateProject = () => {
   const [todos, setTodos] = useState([]);
   const [message, setMessage] = useState("");
   const navigation = useNavigate();
+  const { user } = useContext(UserContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -120,6 +122,17 @@ const CreateProject = () => {
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const minDate = tomorrow.toISOString().split("T")[0];
+
+  if (!user) {
+    return (
+      <div className="pt-32 text-center">
+        <h1 className="text-2xl">Please login..</h1>
+        <Link className="text-blue-600 text-lg" to="/login">
+          Login
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-md mx-auto pt-48">

@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
+import { UserContext } from "../context/UserContext";
 import Project from "../components/Project";
 import axios from "axios";
+import { Link } from "react-router-dom";
 import { baseUrl } from "../constant/constant";
 
 const Projects = () => {
   const [data, setData] = useState([]);
+  const { user } = useContext(UserContext);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -16,6 +19,17 @@ const Projects = () => {
     };
     fetchData();
   }, []);
+
+  if (!user) {
+    return (
+      <div className="pt-32 text-center">
+        <h1 className="text-2xl">Please login..</h1>
+        <Link className="text-blue-600 text-lg" to="/login">
+          Login
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="p-5 flex flex-wrap mx-auto justify-center gap-5">

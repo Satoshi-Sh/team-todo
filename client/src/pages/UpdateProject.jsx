@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { UserContext } from "../context/UserContext";
 import axios from "axios";
 import { baseUrl } from "../constant/constant";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 
 const DeleteProject = ({ projectId }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -52,7 +53,9 @@ const UpdateProject = () => {
   const [description, setDescription] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [message, setMessage] = useState("");
+  const [isOwner, setIsOwner] = useState(false);
   const navigation = useNavigate();
+  const { user } = useContext(UserContext);
 
   const { projectId } = useParams();
 
@@ -62,12 +65,15 @@ const UpdateProject = () => {
         const response = await axios.get(
           `${baseUrl}/api/projects/${projectId}`
         );
-        const { title, due, description } = response.data;
+        const { title, due, description, owner } = response.data;
         setTitle(title);
         setDue(due.split("T")[0]);
         setDescription(description);
+        if (owner._id == user._id) {
+          setIsOwner(true);
+        }
       } catch (err) {
-        console.error("Error fetching project:", err);
+        console.error("Need to be logged in and should be the project owner:");
       }
     };
     fetchProject();
@@ -109,7 +115,16 @@ const UpdateProject = () => {
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const minDate = tomorrow.toISOString().split("T")[0];
-
+  if (!isOwner) {
+    return (
+      <div className="pt-32 text-center">
+        <h1 className="text-2xl">Please login..</h1>
+        <Link className="text-blue-600 text-lg" to="/login">
+          Login
+        </Link>
+      </div>
+    );
+  }
   return (
     <div className="max-w-md mx-auto pt-48">
       <h1 className="text-2xl mb-3 font-bold text-center">Update Project</h1>
@@ -194,6 +209,11 @@ const UpdateProject = () => {
       </form>
       <div className="text-red-500 m-20 text-center">{message && message}</div>
       <DeleteProject projectId={projectId} />
+      <div className="text-center m-5">
+        <Link to={`/project/${projectId}`} className="text-xl text-blue-700">
+          Back
+        </Link>
+      </div>
     </div>
   );
 };
