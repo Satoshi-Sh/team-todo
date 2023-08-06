@@ -18,8 +18,8 @@ const Login = () => {
     e.preventDefault();
 
     // Perform form submission logic here
-    const data = { username, password };
     try {
+      const data = { username, password };
       const res = await axios.post(`${baseUrl}/api/auth/login`, data);
       if ("error" in res.data) {
         console.log(res.data.error);

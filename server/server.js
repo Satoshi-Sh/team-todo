@@ -158,7 +158,7 @@ app.post("/api/auth/login", async (req, res) => {
     }
   } catch (error) {
     console.error(error);
-    res.json({ error: "Wrong Username" });
+    res.json({ error: "Incorrect Username and/or Password" });
   }
 });
 
