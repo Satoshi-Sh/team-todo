@@ -7,6 +7,7 @@ import UpdateAccount from "./pages/UpdateAccount";
 import Login from "./pages/Login";
 import CreateProject from "./pages/CreateProject";
 import SingleProject from "./pages/SingleProject";
+import NotFound from "./pages/NotFound";
 import Projects from "./pages/Projects";
 import UpdateProject from "./pages/UpdateProject";
 import { Route, Routes } from "react-router-dom";
@@ -29,6 +30,7 @@ function App() {
           />
           <Route path="project/:id" element={<SingleProject />} />
           <Route path="create-project" element={<CreateProject />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </UserProvider>
     </div>
