@@ -93,8 +93,7 @@ const CreateProject = () => {
     e.preventDefault();
 
     // validation
-    const todoArray = JSON.stringify(todos);
-    if (todoArray.length == 0) {
+    if (todos.length == 0) {
       setMessage("Need at least one todo..");
       return;
     }
@@ -103,7 +102,7 @@ const CreateProject = () => {
     formData.append("title", title);
     formData.append("due", due);
     formData.append("description", description);
-    formData.append("todos", todoArray);
+    formData.append("todos", JSON.stringify(todos));
     formData.append("selectedFile", selectedFile);
     try {
       const res = await axios.post(`${baseUrl}/api/projects`, formData, {
