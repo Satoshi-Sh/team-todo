@@ -19,7 +19,7 @@ const checkProjectStatus = (project) => {
       count++;
     }
   }
-  if (count == project.todos.length) {
+  if (count == project.todos.length && count > 0) {
     return true;
   }
   return false;

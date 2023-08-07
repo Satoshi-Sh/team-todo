@@ -91,12 +91,19 @@ const CreateProject = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // validation
+    const todoArray = JSON.stringify(todos);
+    if (todoArray.length == 0) {
+      setMessage("Need at least one todo..");
+      return;
+    }
     // Perform form submission logic here
     const formData = new FormData();
     formData.append("title", title);
     formData.append("due", due);
     formData.append("description", description);
-    formData.append("todos", JSON.stringify(todos));
+    formData.append("todos", todoArray);
     formData.append("selectedFile", selectedFile);
     try {
       const res = await axios.post(`${baseUrl}/api/projects`, formData, {
