@@ -54,6 +54,7 @@ const UpdateProject = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [message, setMessage] = useState("");
   const [isOwner, setIsOwner] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const navigation = useNavigate();
   const { user } = useContext(UserContext);
 
@@ -65,6 +66,7 @@ const UpdateProject = () => {
         const response = await axios.get(
           `${baseUrl}/api/projects/${projectId}`
         );
+        setIsLoading(false);
         const { title, due, description, owner } = response.data;
         setTitle(title);
         setDue(due.split("T")[0]);
@@ -73,6 +75,7 @@ const UpdateProject = () => {
           setIsOwner(true);
         }
       } catch (err) {
+        setIsLoading(false);
         console.error("Need to be logged in and should be the project owner:");
       }
     };
@@ -115,7 +118,9 @@ const UpdateProject = () => {
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const minDate = tomorrow.toISOString().split("T")[0];
-  if (!isOwner) {
+  if (isLoading) {
+    return <h1 className="pt-32 text-lg text-center">Loading...</h1>;
+  } else if (!isOwner) {
     return (
       <div className="pt-32 text-center">
         <h1 className="text-2xl">Please login..</h1>

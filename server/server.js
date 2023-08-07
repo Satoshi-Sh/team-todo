@@ -216,19 +216,32 @@ app.post(
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
     try {
+      if (!req.user) {
+        res.status(401).json({ error: "User has to be logged in" });
+        return;
+      }
       const owner = req.user["_id"];
       const { title, due, description, todos } = req.body;
       // todo when file is not attached by the user
       let imageId;
-      if (!req.file) {
-        // use default image id
-        imageId = await getDefaultProjectImageID();
-      } else {
-        // error message when file is too big?
-        imageId = await uploadImage(req.file);
+      try {
+        if (!req.file) {
+          // use default image id
+          imageId = await getDefaultProjectImageID();
+        } else {
+          // error message when file is too big?
+          imageId = await uploadImage(req.file);
+        }
+      } catch {
+        throw new Error("Failed to upload the image file");
       }
-      // add todos
-      const todoIds = await getTodoIds(todos);
+      let todoIds;
+      try {
+        // add todos
+        todoIds = await getTodoIds(todos);
+      } catch {
+        throw new Error("Failed to uplaod the todos");
+      }
       // save project
       const newProject = new Project({
         title,
