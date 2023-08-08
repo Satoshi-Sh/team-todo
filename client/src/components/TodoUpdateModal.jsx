@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { produce } from "immer";
 
 const UpdateField = ({ setData, data, index }) => {
@@ -27,17 +27,19 @@ export default function TodoUpdateModal({ todos, projectSocketRef }) {
   const [showModal, setShowModal] = useState(false);
   const [data, setData] = useState(todos);
   const [added, setAdded] = useState(0);
-
+  useEffect(() => {
+    setData(todos);
+  }, [todos]);
   const handleSave = () => {
     //validation
     for (let todo of data) {
-      console.log(todo);
       if (todo.title == "") {
         window.alert("Todo title cannot be blank..");
         return;
       }
     }
     const projectSocket = projectSocketRef.current;
+    console.log(data);
     projectSocket.emit("updateTodos", data);
     setAdded(0);
     setShowModal(false);

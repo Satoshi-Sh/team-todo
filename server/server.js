@@ -274,7 +274,9 @@ app.patch(
       const updatedProject = await Project.findById(projectId).populate(
         "image"
       );
-      if (!updatedProject.owner.equals(owner)) {
+      if (!updatedProject) {
+        res.status(404).json({ error: "Project is not found.." });
+      } else if (!updatedProject.owner.equals(owner)) {
         throw new Error("Only owner can edit the project..");
       }
       if (req.file) {
@@ -293,7 +295,7 @@ app.patch(
       res.json({ message: `${project.title} is updated.` });
     } catch (err) {
       console.error(err);
-      res.json({ message: err.message });
+      res.json({ error: err.message });
     }
   }
 );
@@ -460,7 +462,7 @@ function createProjectNamespace(projectId) {
           const todoIds = await getTodoIds2(newTodos);
           const updatedProject = await project.findById(projectId);
           updatedProject.todos = [...updatedProject.todos, ...todoIds];
-          updatedProject.save();
+          await updatedProject.save();
           // send updated project
           emitNewData(projectNamespaces[projectId], projectId);
         } catch (err) {

@@ -105,7 +105,7 @@ const UpdateProject = () => {
       } else {
         console.log(res.data.message);
         setMessage("");
-        navigation(`/projects`);
+        navigation(`/project/${projectId}`);
       }
     } catch (error) {
       console.log(error);
