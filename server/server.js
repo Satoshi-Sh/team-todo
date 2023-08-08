@@ -488,6 +488,16 @@ function createProjectNamespace(projectId) {
           sendError("Failed to update todos.", socket);
         }
       });
+      socket.on("disconnect", async () => {
+        const Namespace = io.of(`/${projectId}`);
+        if (Namespace.sockets.size == 0) {
+          // close the empty room
+          Namespace.removeAllListeners();
+          delete projectNamespaces[projectId];
+        }
+        console.log(Object.keys(projectNamespaces).length, "open room");
+        console.log("Client disconnected from Project Socket");
+      });
     });
   }
 }
