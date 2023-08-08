@@ -2,6 +2,7 @@ const Image = require("../models/image");
 const Member = require("../models/member");
 const Todo = require("../models/todo");
 const Project = require("../models/project");
+const Message = require("../models/message");
 require("dotenv").config();
 const bcrypt = require("bcrypt");
 
@@ -136,6 +137,18 @@ const emitNewData = async (socket, projectId) => {
   socket.emit("newProjectData", newProject);
 };
 
+const emitNewMessages = async (socket, projectId) => {
+  try {
+    const newMessages = await Message.find({ project: projectId })
+      .populate("sender")
+      .populate({ path: "sender", populate: { path: "avatar" } })
+      .sort({ createdAt: 1 });
+    socket.emit("newMessagesData", newMessages);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 const sendError = (message, socket) => {
   socket.emit("projectError", {
     errorMessage: message,
@@ -154,4 +167,5 @@ module.exports = {
   addMember,
   emitNewData,
   sendError,
+  emitNewMessages,
 };

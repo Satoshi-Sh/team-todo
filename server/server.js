@@ -9,6 +9,7 @@ const Member = require("./models/member");
 const Project = require("./models/project");
 const Image = require("./models/image");
 const Todo = require("./models/todo");
+const Message = require("./models/message");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const multer = require("multer");
@@ -34,6 +35,7 @@ const {
   addMember,
   emitNewData,
   sendError,
+  emitNewMessages,
 } = require("./utils/utils");
 const {
   configurePassport,
@@ -41,6 +43,7 @@ const {
   extractToken,
 } = require("./utils/auth");
 const project = require("./models/project");
+const { emit } = require("process");
 
 // multer
 const storage = multer.memoryStorage();
@@ -346,6 +349,8 @@ function createProjectNamespace(projectId) {
     projectNamespaces[projectId].on("connection", (socket) => {
       // Handle socket events within this project's namespace
       console.log(`User connected to Project: ${projectId}`);
+      // send Messages on project when user
+      emitNewMessages(socket, projectId);
 
       socket.on("joinProject", async (data) => {
         try {
@@ -353,6 +358,7 @@ function createProjectNamespace(projectId) {
           if ("message" in response) {
             emitNewData(projectNamespaces[projectId], projectId);
           }
+          emitNewMessages(socket, projectId);
         } catch (err) {
           console.error("Error adding member to project: ", err);
           sendError("Failed to join the project", projectNamespaces[projectId]);
@@ -474,7 +480,6 @@ function createProjectNamespace(projectId) {
       socket.on("deleteTodo", async (data) => {
         try {
           const { todoId } = data;
-          console.log(todoId);
           // send updated project
           const newProject = await project.findById(projectId);
           if (!newProject) {
@@ -487,6 +492,18 @@ function createProjectNamespace(projectId) {
         } catch (err) {
           console.error(err);
           sendError("Failed to update todos.", socket);
+        }
+      });
+      socket.on("sendMessage", async ({ message }) => {
+        try {
+          const newMessage = new Message();
+          newMessage.message = message;
+          newMessage.sender = socket.user._id;
+          newMessage.project = projectId;
+          await newMessage.save();
+          emitNewMessages(projectNamespaces[projectId], projectId);
+        } catch (err) {
+          console.error(err);
         }
       });
       socket.on("disconnect", async () => {

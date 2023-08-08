@@ -74,6 +74,7 @@ function Navigation() {
             imageContent={user.avatar.imageContent}
             contentType={user.avatar.contentType}
             userId={user._id}
+            withLink={true}
           />
         )}
       </div>

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useContext } from "react";
 import { useParams } from "react-router-dom";
 import AvatarImage from "../components/AvatarImage";
 import TodoUpdateModal from "../components/TodoUpdateModal";
+import MessageBoard from "../components/MessageBoard";
 import { UserContext } from "../context/UserContext";
 import { capitalizeFirstLetter } from "../utils";
 import ProjectImage from "../components/ProjectImage";
@@ -358,6 +359,11 @@ const SingleProject = () => {
           />
         </div>
       </div>
+      {isOwner || isMember ? (
+        <MessageBoard projectSocket={projectSocketRef.current} />
+      ) : (
+        <MessageBoard projectSocket={projectSocketRef.current} hidden={true} />
+      )}
       <div>
         {/* if not the owner and already are team member */}
         {isMember ? (
