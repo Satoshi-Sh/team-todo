@@ -6,6 +6,17 @@ import ProjectImage from "./ProjectImage";
 
 const Project = (props) => {
   const { data } = props;
+  let projectDone = false;
+  let countComplete = 0;
+  for (let todo of data.todos) {
+    if (todo.status == "Completed") {
+      countComplete++;
+    }
+  }
+  if (data.todos.length == countComplete && countComplete > 0) {
+    projectDone = true;
+  }
+
   const navigate = useNavigate();
   const handleClick = (e) => {
     navigate(`/project/${e.currentTarget.id}`);
@@ -13,10 +24,17 @@ const Project = (props) => {
 
   return (
     <div
-      className="max-w-sm rounded overflow-hidden shadow-lg mt-20 p-4 cursor-pointer"
+      className=" relative max-w-sm rounded overflow-hidden shadow-lg mt-20 p-4 cursor-pointer"
       onClick={handleClick}
       id={data._id}
     >
+      {projectDone ? (
+        <div class="absolute left-0 top-0 h-16 w-16">
+          <div class="absolute left-[-34px] top-[32px] w-[170px] transform -rotate-45 bg-lime-500 text-center text-white font-semibold py-1">
+            Completed
+          </div>
+        </div>
+      ) : null}
       <div className="h-[280px] grid place-items-center overflow-clip">
         <ProjectImage
           imageContent={data.image.imageContent}

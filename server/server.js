@@ -179,12 +179,13 @@ app.get("/api/projects", async (req, res) => {
   try {
     const projects = await Project.find({})
       .populate("owner")
+      .populate("todos")
       .populate("image")
       .populate({ path: "owner", populate: { path: "avatar" } });
     res.json(projects);
   } catch (err) {
     console.error(err);
-    res.json({ message: "Something went wrong.." });
+    res.status(500).json({ message: "Something went wrong.." });
   }
 });
 // get a project by id

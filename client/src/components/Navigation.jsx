@@ -47,7 +47,7 @@ function Navigation() {
 
   const { user } = useContext(UserContext);
   return (
-    <nav className="flex fixed w-full items-center justify-between flex-wrap bg-teal-500 p-6">
+    <nav className="flex fixed w-full z-10 items-center justify-between flex-wrap bg-teal-500 p-6">
       <Link
         to={user ? "/projects" : "/"}
         className="flex items-center flex-shrink-0 text-white mr-6"
