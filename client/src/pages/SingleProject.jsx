@@ -98,6 +98,15 @@ const Todo = ({ todo, isMember, projectSocket, isOwner }) => {
             </button>
           </div>
         ) : null}
+        {isOwner ? (
+          <span id={todo._id} onClick={deleteTodo}>
+            <FontAwesomeIcon
+              id={todo._id}
+              icon={faTrash}
+              className="text-red-500 ml-auto cursor-pointer"
+            />
+          </span>
+        ) : null}
       </>
     );
   } else {
@@ -123,6 +132,15 @@ const Todo = ({ todo, isMember, projectSocket, isOwner }) => {
               Unmark Complete
             </button>
           </div>
+        ) : null}
+        {isOwner ? (
+          <span id={todo._id} onClick={deleteTodo}>
+            <FontAwesomeIcon
+              id={todo._id}
+              icon={faTrash}
+              className="text-red-500 ml-auto cursor-pointer"
+            />
+          </span>
         ) : null}
       </>
     );
