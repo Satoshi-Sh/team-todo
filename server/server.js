@@ -169,7 +169,7 @@ app.get("/api/auth/logout", (req, res) => {
     res.json({ message: "Cookie Deleted" });
   } catch (err) {
     console.error(err);
-    res.json({ error: "something went wrong" });
+    res.json({ error: "Couldn't delete the cookie" });
   }
 });
 
@@ -185,7 +185,7 @@ app.get("/api/projects", async (req, res) => {
     res.json(projects);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Something went wrong.." });
+    res.status(500).json({ message: "Failed to retrieve projects.." });
   }
 });
 // get a project by id
@@ -206,7 +206,7 @@ app.get("/api/projects/:id", async (req, res) => {
     res.send(project);
   } catch (err) {
     console.error(err);
-    res.send({ message: "Something went wrong..." });
+    res.send({ message: "Failed to retrieve the project..." });
   }
 });
 
@@ -296,7 +296,7 @@ app.patch(
       res.json({ message: `${project.title} is updated.` });
     } catch (err) {
       console.error(err);
-      res.json({ error: err.message });
+      res.json({ error: err.message, message: "Failed to update the project" });
     }
   }
 );
@@ -330,7 +330,7 @@ app.delete(
       res.json({ message: `${deleted.title} is deleted.` });
     } catch (err) {
       console.error(err);
-      res.json({ error: err.message });
+      res.json({ error: err.message, message: "Failed to delete the project" });
     }
   }
 );
