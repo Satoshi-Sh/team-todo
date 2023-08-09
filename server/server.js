@@ -504,8 +504,18 @@ function createProjectNamespace(projectId) {
           emitNewMessages(projectNamespaces[projectId], projectId);
         } catch (err) {
           console.error(err);
+          // send error message??
         }
       });
+      socket.on("deleteMessage", async ({ messageId }) => {
+        try {
+          await Message.findByIdAndDelete(messageId);
+          emitNewMessages(projectNamespaces[projectId], projectId);
+        } catch (err) {
+          console.error(err);
+        }
+      });
+
       socket.on("disconnect", async () => {
         const Namespace = io.of(`/${projectId}`);
         if (Namespace.sockets.size == 0) {
