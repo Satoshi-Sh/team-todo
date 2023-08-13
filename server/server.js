@@ -41,6 +41,8 @@ const {
 const {
   createAccount,
   updateAccount,
+  userLogin,
+  userLogout,
 } = require("./controllers/auth.controller");
 
 const {
@@ -65,43 +67,17 @@ app.use(passport.initialize());
 app.use(cors({ origin: "http://localhost:4000", credentials: true }));
 app.use(express.json());
 
-//signup
+//// Authentication
+// signup
 app.post("/api/auth/signup", upload.single("selectedFile"), createAccount);
-
 // account update
 app.patch("/api/auth/signup", upload.single("selectedFile"), updateAccount);
-//login
-app.post("/api/auth/login", async (req, res) => {
-  try {
-    const { username, password } = req.body;
-    const user = await getUser(username);
-    const hashedPassword = user.password;
-    if (await comparePassword(password, hashedPassword)) {
-      const token = await generateToken(username);
-      const expirationTime = new Date(Date.now() + 60 * 60 * 1000);
-      res.cookie("authToken", token, { expires: expirationTime });
-      res.json({ message: `Logged in Successfully`, user });
-    } else {
-      res.json({ error: "Incorrect Username and/or Password" });
-    }
-  } catch (error) {
-    console.error(error);
-    res.json({ error: "Incorrect Username and/or Password" });
-  }
-});
+// login
+app.post("/api/auth/login", userLogin);
+// logout
+app.get("/api/auth/logout", userLogout);
 
-//logout
-app.get("/api/auth/logout", (req, res) => {
-  try {
-    res.clearCookie("authToken", { path: "/" });
-    res.json({ message: "Cookie Deleted" });
-  } catch (err) {
-    console.error(err);
-    res.json({ error: "Couldn't delete the cookie" });
-  }
-});
-
-//////Projects
+////Projects
 // get all projects
 app.get("/api/projects", async (req, res) => {
   try {

@@ -103,7 +103,38 @@ const updateAccount = async (req, res) => {
   }
 };
 
+const userLogin = async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    const user = await getUser(username);
+    const hashedPassword = user.password;
+    if (await comparePassword(password, hashedPassword)) {
+      const token = await generateToken(username);
+      const expirationTime = new Date(Date.now() + 60 * 60 * 1000);
+      res.cookie("authToken", token, { expires: expirationTime });
+      res.json({ message: `Logged in Successfully`, user });
+    } else {
+      res.json({ error: "Incorrect Username and/or Password" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.json({ error: "Incorrect Username and/or Password" });
+  }
+};
+
+const userLogout = async (req, res) => {
+  try {
+    res.clearCookie("authToken", { path: "/" });
+    res.json({ message: "Cookie Deleted" });
+  } catch (err) {
+    console.error(err);
+    res.json({ error: "Couldn't delete the cookie" });
+  }
+};
+
 module.exports = {
   createAccount,
   updateAccount,
+  userLogin,
+  userLogout,
 };
