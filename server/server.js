@@ -46,6 +46,14 @@ const {
 } = require("./controllers/auth.controller");
 
 const {
+  getProjects,
+  getProjectById,
+  createNewProject,
+  updateProject,
+  deleteProject,
+} = require("./controllers/projects.controller");
+
+const {
   configurePassport,
   generateToken,
   extractToken,
@@ -79,166 +87,31 @@ app.get("/api/auth/logout", userLogout);
 
 ////Projects
 // get all projects
-app.get("/api/projects", async (req, res) => {
-  try {
-    const projects = await Project.find({})
-      .populate("owner")
-      .populate("todos")
-      .populate("image")
-      .populate({ path: "owner", populate: { path: "avatar" } });
-    res.json(projects);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to retrieve projects.." });
-  }
-});
+app.get("/api/projects", getProjects);
 // get a project by id
-app.get("/api/projects/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const project = await Project.findById(id)
-      .populate("owner")
-      .populate("image")
-      .populate({ path: "owner", populate: { path: "avatar" } })
-      .populate("members")
-      .populate({ path: "members", populate: { path: "avatar" } })
-      .populate("todos")
-      .populate({ path: "todos", populate: { path: "assignee" } });
-    if (!project) {
-      return res.status(404).json({ error: "Project not found" });
-    }
-    res.send(project);
-  } catch (err) {
-    console.error(err);
-    res.send({ message: "Failed to retrieve the project..." });
-  }
-});
-
+app.get("/api/projects/:id", getProjectById);
 // create new project
 app.post(
   "/api/projects",
   upload.single("selectedFile"),
   passport.authenticate("jwt", { session: false }),
-  async (req, res) => {
-    try {
-      if (!req.user) {
-        res.status(401).json({ error: "User has to be logged in" });
-        return;
-      }
-      const owner = req.user["_id"];
-      const { title, due, description, todos } = req.body;
-      // todo when file is not attached by the user
-      let imageId;
-      try {
-        if (!req.file) {
-          // use default image id
-          imageId = await getDefaultProjectImageID();
-        } else {
-          // error message when file is too big?
-          imageId = await uploadImage(req.file);
-        }
-      } catch {
-        throw new Error("Failed to upload the image file");
-      }
-      let todoIds;
-      try {
-        // add todos
-        todoIds = await getTodoIds(todos);
-      } catch {
-        throw new Error("Failed to uplaod the todos");
-      }
-      // save project
-      const newProject = new Project({
-        title,
-        owner,
-        due,
-        description,
-        todos: todoIds,
-        image: imageId,
-      });
-      await newProject.save();
-      res.json({ message: `${title} is created.` });
-    } catch (err) {
-      console.error(err);
-      res.json({ message: err.message });
-    }
-  }
+  createNewProject
 );
-
 // update project
-
 app.patch(
   "/api/projects/:projectId",
   upload.single("selectedFile"),
   passport.authenticate("jwt", { session: false }),
-  async (req, res) => {
-    try {
-      const { projectId } = req.params;
-      const owner = req.user["_id"];
-      const { title, due, description } = req.body;
-      const updatedProject = await Project.findById(projectId).populate(
-        "image"
-      );
-      if (!updatedProject) {
-        res.status(404).json({ error: "Project is not found.." });
-      } else if (!updatedProject.owner.equals(owner)) {
-        throw new Error("Only owner can edit the project..");
-      }
-      if (req.file) {
-        // error message when file is too big?
-        const imageId = await uploadImage(req.file);
-        // delete old one if it's not default
-        if (!updatedProject.image.fileName) {
-          await Image.findByIdAndDelete(updatedProject.image);
-        }
-        updatedProject.image = imageId;
-      }
-      updatedProject.title = title;
-      updatedProject.due = due;
-      updatedProject.description = description;
-      const project = await updatedProject.save();
-      res.json({ message: `${project.title} is updated.` });
-    } catch (err) {
-      console.error(err);
-      res.json({ error: err.message, message: "Failed to update the project" });
-    }
-  }
+  updateProject
 );
-
 // delete project
-
 app.delete(
   "/api/projects/:projectId",
   passport.authenticate("jwt", { session: false }),
-  async (req, res) => {
-    try {
-      const { projectId } = req.params;
-      const owner = req.user["_id"];
-      const deletedProject = await Project.findById(projectId).populate(
-        "image"
-      );
-
-      if (!deletedProject.owner.equals(owner)) {
-        throw new Error("Only owner can delete the project..");
-      }
-      // delete old image if it's not default
-      if (!deletedProject.image.fileName) {
-        await Image.findByIdAndDelete(deletedProject.image);
-      }
-      // delete all the todos
-      for (let todo of deletedProject.todos) {
-        await Todo.findByIdAndDelete(todo);
-      }
-      const deleted = await Project.findByIdAndDelete(projectId);
-
-      res.json({ message: `${deleted.title} is deleted.` });
-    } catch (err) {
-      console.error(err);
-      res.json({ error: err.message, message: "Failed to delete the project" });
-    }
-  }
+  deleteProject
 );
 
+//// Websocket
 // add user info to socket
 io.use(extractToken);
 // websocket for each project
@@ -368,7 +241,7 @@ function createProjectNamespace(projectId) {
             }
           }
           const todoIds = await getTodoIds2(newTodos);
-          const updatedProject = await project.findById(projectId);
+          const updatedProject = await Project.findById(projectId);
           updatedProject.todos = [...updatedProject.todos, ...todoIds];
           await updatedProject.save();
           // send updated project
@@ -382,7 +255,7 @@ function createProjectNamespace(projectId) {
         try {
           const { todoId } = data;
           // send updated project
-          const newProject = await project.findById(projectId);
+          const newProject = await Project.findById(projectId);
           if (!newProject) {
             throw new Error("Project not found");
           }

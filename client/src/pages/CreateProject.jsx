@@ -110,12 +110,14 @@ const CreateProject = () => {
           "Content-Type": "multipart/form-data",
         },
       });
-      if ("error" in res.data) {
-        setMessage(res.data.error);
+      const { error, projectId } = res.data;
+      if (error) {
+        setMessage(error);
       } else {
         console.log(res.data.message);
         setMessage("");
-        navigation("/projects");
+
+        navigation(`/project/${projectId}`);
       }
     } catch (error) {
       console.log(error);
