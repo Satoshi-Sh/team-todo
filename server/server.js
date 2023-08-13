@@ -48,7 +48,6 @@ const {
   generateToken,
   extractToken,
 } = require("./utils/auth");
-// const project = require("./models/project");
 
 // multer
 const storage = multer.memoryStorage();
