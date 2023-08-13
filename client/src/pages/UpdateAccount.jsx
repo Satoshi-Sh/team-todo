@@ -79,6 +79,7 @@ const UpdateAccount = () => {
       }
     } catch (error) {
       console.log(error);
+      setMessage(error.response.data.error);
     }
   };
   if (!user) {

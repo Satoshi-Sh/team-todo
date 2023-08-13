@@ -37,13 +37,18 @@ const {
   sendError,
   emitNewMessages,
 } = require("./utils/utils");
+
+const {
+  createAccount,
+  updateAccount,
+} = require("./controllers/auth.controller");
+
 const {
   configurePassport,
   generateToken,
   extractToken,
 } = require("./utils/auth");
-const project = require("./models/project");
-const { emit } = require("process");
+// const project = require("./models/project");
 
 // multer
 const storage = multer.memoryStorage();
@@ -62,89 +67,10 @@ app.use(cors({ origin: "http://localhost:4000", credentials: true }));
 app.use(express.json());
 
 //signup
+app.post("/api/auth/signup", upload.single("selectedFile"), createAccount);
 
-app.post(
-  "/api/auth/signup",
-  upload.single("selectedFile"),
-  async (req, res) => {
-    try {
-      // when file is not attached by the user
-      let imageId;
-      if (!req.file) {
-        // use default image id
-        imageId = await getDefaultAvatarID();
-      } else {
-        try {
-          imageId = await uploadImage(req.file);
-        } catch (err) {
-          res.status(500).json({ error: "Error uploading image." });
-        }
-      }
-      const { username, email, password } = req.body;
-      const hash = await hashPassword(password);
-      const newMember = new Member({
-        username,
-        email,
-        password: hash,
-        avatar: imageId,
-      });
-      await newMember.save();
-
-      const token = await generateToken(username);
-      const expirationTime = new Date(Date.now() + 60 * 60 * 1000);
-      res.cookie("authToken", token, { expires: expirationTime });
-      const user = await getUser(username);
-      res.json({ message: `${username} is created.`, user });
-    } catch (error) {
-      console.error(error);
-      if (error.code === 11000) {
-        res.status(409).json({ error: "Duplicate username" });
-      } else {
-        res.status(500).json({ error: "Failed to crate a new user." });
-      }
-    }
-  }
-);
 // account update
-app.patch(
-  "/api/auth/signup",
-  upload.single("selectedFile"),
-  async (req, res) => {
-    //if no file keep original
-    try {
-      const { username, email, userId } = req.body;
-      const member = await Member.findById(userId).populate("avatar");
-      // remove old image and add new
-      if (req.file) {
-        // delete old image if it's not defaul avatar
-        if (!member.avatar.fileName) {
-          await Image.findByIdAndDelete(member.avatar._id);
-        }
-        const imageId = await uploadImage(req.file);
-        member.avatar = imageId;
-      }
-
-      member.email = email;
-      member.username = username;
-
-      await member.save();
-      const token = await generateToken(username);
-      const expirationTime = new Date(Date.now() + 60 * 60 * 1000);
-      res.cookie("authToken", token, { expires: expirationTime });
-      const user = await getUser(member.username);
-      res.send({
-        user,
-        message: `${member.username} updated`,
-      });
-      // delete old image if it's not default avatar image
-      if (req.file) {
-      }
-    } catch (error) {
-      console.error(error);
-      res.send({ error: "something wrong" });
-    }
-  }
-);
+app.patch("/api/auth/signup", upload.single("selectedFile"), updateAccount);
 //login
 app.post("/api/auth/login", async (req, res) => {
   try {

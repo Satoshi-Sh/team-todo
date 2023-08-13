@@ -41,6 +41,7 @@ const Signup = () => {
           "Content-Type": "multipart/form-data",
         },
       });
+      console.log(res.data);
       if ("error" in res.data) {
         console.log(res.data.error);
         setMessage(res.data.error);
@@ -51,6 +52,7 @@ const Signup = () => {
       }
     } catch (error) {
       console.log(error);
+      setMessage(error.response.data.error);
     }
   };
 
