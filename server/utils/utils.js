@@ -152,6 +152,8 @@ const emitNewMessages = async (socket, projectId) => {
 const sendError = (message, socket) => {
   socket.emit("projectError", {
     errorMessage: message,
+    message:
+      "The project might be deleted by the project owner. Please go back to projects page to check.",
   });
 };
 
