@@ -32,7 +32,7 @@ function createProjectNamespace(io, projectNamespaces, projectId) {
           sendError("Failed to join the project", projectNamespaces[projectId]);
         }
       });
-      socket.on("leaveProject", async (data) => {
+      socket.on("leaveProject", async () => {
         try {
           const project = await Project.findById(projectId).populate("todos");
           if (!project) {

@@ -7,8 +7,24 @@ import { UserContext } from "../context/UserContext";
 import { useContext } from "react";
 axios.defaults.withCredentials = true;
 
-const DeleteAccount = () => {
+const DeleteAccount = ({ setMessage }) => {
   const [isOpen, setIsOpen] = useState(false);
+
+  const deleteAccount = async () => {
+    try {
+      const res = await axios.delete(`${baseUrl}/api/auth/account`);
+      if ("error" in res.data) {
+        console.log(res.data.error);
+        setMessage(res.data.error);
+      } else {
+        console.log(res.data);
+        //logout();
+      }
+    } catch (error) {
+      console.log(error);
+      setMessage(error.response.data.error);
+    }
+  };
   return (
     <div className="flex flex-col mt-10 gap-4 items-center justify-center">
       {isOpen ? (
@@ -32,7 +48,7 @@ const DeleteAccount = () => {
         <button
           className="bg-red-500 hover:bg-red-700 block text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
           type="submit"
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={deleteAccount}
         >
           Confirm Delete
         </button>
@@ -164,7 +180,7 @@ const UpdateAccount = () => {
       <div id="message" className="text-red-500 mt-6 text-center">
         {message && message}
       </div>
-      <DeleteAccount />
+      <DeleteAccount setMessage={setMessage} />
     </div>
   );
 };

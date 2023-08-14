@@ -5,8 +5,10 @@ const {
   hashPassword,
   comparePassword,
 } = require("../utils/utils");
+const { deleteProjectById } = require("./projects.controller");
 const Member = require("../models/member");
 const Image = require("../models/image");
+const Project = require("../models/project");
 
 const { generateToken } = require("../utils/auth");
 
@@ -121,9 +123,26 @@ const userLogout = async (req, res) => {
   }
 };
 
+const userDelete = async (req, res) => {
+  try {
+    //delete projects that the user is owning
+    const owner = req.user["_id"];
+    const projects = await Project.find({ owner: owner });
+    for (let project of projects) {
+      await deleteProjectById(project._id, owner);
+    }
+    //need to leave all projects
+    res.json({ message: "account deleted" });
+  } catch (err) {
+    console.error(err);
+    res.json({ error: "Failed to delete the account" });
+  }
+};
+
 module.exports = {
   createAccount,
   updateAccount,
   userLogin,
   userLogout,
+  userDelete,
 };

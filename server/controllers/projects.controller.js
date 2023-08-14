@@ -148,10 +148,36 @@ const deleteProject = async (req, res) => {
   }
 };
 
+const deleteProjectById = async (projectId, owner) => {
+  try {
+    const deletedProject = await Project.findById(projectId).populate("image");
+
+    if (!deletedProject.owner.equals(owner)) {
+      throw new Error("Only owner can delete the project..");
+    }
+    // delete old image if it's not default
+    if (!deletedProject.image.fileName) {
+      await Image.findByIdAndDelete(deletedProject.image);
+    }
+    // delete all the todos
+    for (let todo of deletedProject.todos) {
+      await Todo.findByIdAndDelete(todo);
+    }
+    // delete all messages
+    await Message.deleteMany({ project: projectId });
+    const deleted = await Project.findByIdAndDelete(projectId);
+    console.log(`${deleted.title} is deleted.`);
+  } catch (err) {
+    console.error(err);
+    console.log("Failed to delete the project");
+  }
+};
+
 module.exports = {
   getProjects,
   getProjectById,
   createNewProject,
   updateProject,
   deleteProject,
+  deleteProjectById,
 };

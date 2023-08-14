@@ -23,6 +23,7 @@ const {
   updateAccount,
   userLogin,
   userLogout,
+  userDelete,
 } = require("./controllers/auth.controller");
 
 const {
@@ -61,6 +62,12 @@ app.patch("/api/auth/signup", upload.single("selectedFile"), updateAccount);
 app.post("/api/auth/login", userLogin);
 // logout
 app.get("/api/auth/logout", userLogout);
+// delete account
+app.delete(
+  "/api/auth/account",
+  passport.authenticate("jwt", { session: false }),
+  userDelete
+);
 
 ////Projects
 // get all projects
