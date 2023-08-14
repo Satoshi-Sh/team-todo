@@ -29,8 +29,8 @@ const Project = (props) => {
       id={data._id}
     >
       {projectDone ? (
-        <div class="absolute left-0 top-0 h-16 w-16">
-          <div class="absolute left-[-34px] top-[32px] w-[170px] transform -rotate-45 bg-lime-500 text-center text-white font-semibold py-1">
+        <div className="absolute left-0 top-0 h-16 w-16">
+          <div className="absolute left-[-34px] top-[32px] w-[170px] transform -rotate-45 bg-lime-500 text-center text-white font-semibold py-1">
             Completed
           </div>
         </div>

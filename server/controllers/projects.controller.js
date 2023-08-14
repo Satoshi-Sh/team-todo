@@ -1,26 +1,12 @@
 const {
   uploadImage,
-  getDefaultAvatarID,
   getDefaultProjectImageID,
-  getUser,
-  hashPassword,
-  comparePassword,
   getTodoIds,
-  getTodoIds2,
-  addMember,
-  emitNewData,
-  sendError,
-  emitNewMessages,
 } = require("../utils/utils");
-const Member = require("../models/member");
+
 const Image = require("../models/image");
 const Project = require("../models/project");
 const Todo = require("../models/todo");
-const {
-  configurePassport,
-  generateToken,
-  extractToken,
-} = require("../utils/auth");
 
 const getProjects = async (req, res) => {
   try {
