@@ -7,6 +7,8 @@ const {
 } = require("../utils/utils");
 
 const { extractToken } = require("../utils/auth");
+const Message = require("../models/message");
+const Project = require("../models/project");
 
 function createProjectNamespace(io, projectNamespaces, projectId) {
   if (!projectNamespaces[projectId]) {
@@ -44,8 +46,11 @@ function createProjectNamespace(io, projectNamespaces, projectId) {
               await todo.save();
             }
           }
+          // delete messages
+          await Message.deleteMany({ sender: socket.user._id });
           await project.save();
           emitNewData(projectNamespaces[projectId], projectId);
+          emitNewMessages(projectNamespaces[projectId], projectId);
         } catch (error) {
           console.error(error);
           sendError(

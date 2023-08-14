@@ -149,7 +149,7 @@ const emitNewMessages = async (socket, projectId) => {
   }
 };
 
-const sendError = (message, socket) => {
+const sendError = (message, socket, isDeleted = false) => {
   socket.emit("projectError", {
     errorMessage: message,
     message:

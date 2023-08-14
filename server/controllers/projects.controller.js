@@ -7,6 +7,7 @@ const {
 const Image = require("../models/image");
 const Project = require("../models/project");
 const Todo = require("../models/todo");
+const Message = require("../models/message");
 
 const getProjects = async (req, res) => {
   try {
@@ -136,8 +137,10 @@ const deleteProject = async (req, res) => {
     for (let todo of deletedProject.todos) {
       await Todo.findByIdAndDelete(todo);
     }
+    // delete all messages
+    await Message.deleteMany({ project: projectId });
     const deleted = await Project.findByIdAndDelete(projectId);
-    // TODO delete all hte messages
+
     res.json({ message: `${deleted.title} is deleted.` });
   } catch (err) {
     console.error(err);
