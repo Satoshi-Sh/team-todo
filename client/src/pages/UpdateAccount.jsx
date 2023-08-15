@@ -9,6 +9,8 @@ axios.defaults.withCredentials = true;
 
 const DeleteAccount = ({ setMessage }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const navigation = useNavigate();
+  const { logout } = useContext(UserContext);
 
   const deleteAccount = async () => {
     try {
@@ -18,7 +20,8 @@ const DeleteAccount = ({ setMessage }) => {
         setMessage(res.data.error);
       } else {
         console.log(res.data);
-        //logout();
+        logout();
+        navigation("/");
       }
     } catch (error) {
       console.log(error);

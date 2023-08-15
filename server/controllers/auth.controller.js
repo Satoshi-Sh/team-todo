@@ -6,6 +6,7 @@ const {
   comparePassword,
 } = require("../utils/utils");
 const { deleteProjectById } = require("./projects.controller");
+const { leaveProjectOnDelete } = require("./socket.controller");
 const Member = require("../models/member");
 const Image = require("../models/image");
 const Project = require("../models/project");
@@ -126,13 +127,21 @@ const userLogout = async (req, res) => {
 const userDelete = async (req, res) => {
   try {
     //delete projects that the user is owning
-    const owner = req.user["_id"];
-    const projects = await Project.find({ owner: owner });
+    const userId = req.user["_id"];
+    const projects = await Project.find({ owner: userId });
     for (let project of projects) {
-      await deleteProjectById(project._id, owner);
+      await deleteProjectById(project._id, userId);
     }
     //need to leave all projects
-    res.json({ message: "account deleted" });
+    const projectsMember = await Project.find({ members: { $in: [userId] } });
+    for (let project of projectsMember) {
+      await leaveProjectOnDelete(project._id, userId);
+    }
+
+    // finally delete the account
+    const memberDeleted = await Member.findByIdAndDelete(userId);
+
+    res.json({ message: `${memberDeleted.username} deleted` });
   } catch (err) {
     console.error(err);
     res.json({ error: "Failed to delete the account" });

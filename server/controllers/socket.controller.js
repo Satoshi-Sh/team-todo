@@ -49,6 +49,31 @@ const leaveProject = async (projectId, socket, projectNamespaces) => {
   }
 };
 
+// function for when user deleted the account
+const leaveProjectOnDelete = async (projectId, userId) => {
+  try {
+    const project = await Project.findById(projectId).populate("todos");
+    if (!project) {
+      throw new Error("Project not found");
+    }
+    project.members.pull({ _id: userId });
+    for (let todo of project.todos) {
+      if (todo.assignee && todo.assignee.equals(userId)) {
+        todo.assignee = null;
+        todo.status = "Open";
+        await todo.save();
+      }
+    }
+    // delete messages
+    await Message.deleteMany({ sender: userId });
+    await project.save();
+    console.log(`Left Project:${project.title}`);
+  } catch (error) {
+    console.error(error);
+    sendError("Failed to leave the project", projectNamespaces[projectId]);
+  }
+};
+
 const assignTask = async (projectId, socket, projectNamespaces, data) => {
   try {
     const userId = socket.user._id;
@@ -243,4 +268,5 @@ const createProjectNamespace = (io, projectNamespaces, projectId) => {
 
 module.exports = {
   createProjectNamespace,
+  leaveProjectOnDelete,
 };
