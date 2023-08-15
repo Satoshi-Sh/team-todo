@@ -198,7 +198,12 @@ const sendMessage = async (projectId, socket, projectNamespaces, message) => {
   }
 };
 
-const deleteMessage = async (projectId, projectNamespaces, messageId) => {
+const deleteMessage = async (
+  projectId,
+  socket,
+  projectNamespaces,
+  messageId
+) => {
   try {
     await Message.findByIdAndDelete(messageId);
     emitNewMessages(projectNamespaces[projectId], projectId);
