@@ -30,6 +30,7 @@ This project was created for [ComIT](https://www.comit.org/) Node.js course as m
 - Express
 - MongoDB
 - WebSocket
+- Tailwind CSS
 
 ## Outlook
 
