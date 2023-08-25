@@ -1,7 +1,7 @@
 export const keepShorter = (text) => {
   let newText;
-  if (text.length > 100) {
-    newText = text.slice(0, 90) + "...";
+  if (text.length > 60) {
+    newText = text.slice(0, 60) + "...";
     return newText;
   }
   return text;
