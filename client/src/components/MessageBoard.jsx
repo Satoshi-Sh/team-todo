@@ -99,21 +99,23 @@ const MessageBoard = ({ projectSocket, hidden }) => {
             />
           );
         })}
-      <textarea
-        className="shadow appearance-none border rounded w-8/12 h-16 mt-16 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-        id="description"
-        placeholder="Send new message.."
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        rows="15"
-        required
-      />
-      <button
-        onClick={handleSend}
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold m-12 py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-      >
-        Send
-      </button>
+      <div className="border rounded m-3 shadow-md">
+        <textarea
+          className="shadow appearance-none border rounded w-8/12 h-16 mt-16 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          id="description"
+          placeholder="Send new message.."
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          rows="15"
+          required
+        />
+        <button
+          onClick={handleSend}
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold m-12 py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+        >
+          Send
+        </button>
+      </div>
     </div>
   );
 };
