@@ -4,6 +4,7 @@ const {
   emitNewData,
   sendError,
   emitNewMessages,
+  checkProject,
 } = require("../utils/utils");
 
 const { extractToken } = require("../utils/auth");
@@ -187,6 +188,8 @@ const deleteTodo = async (projectId, socket, projectNamespaces, data) => {
 
 const sendMessage = async (projectId, socket, projectNamespaces, message) => {
   try {
+    // make sure if the project is there
+    await checkProject();
     const newMessage = new Message();
     newMessage.message = message;
     newMessage.sender = socket.user._id;
@@ -195,20 +198,19 @@ const sendMessage = async (projectId, socket, projectNamespaces, message) => {
     emitNewMessages(projectNamespaces[projectId], projectId);
   } catch (err) {
     console.error(err);
+    sendError("Failed to send a message.", socket);
   }
 };
 
-const deleteMessage = async (
-  projectId,
-  socket,
-  projectNamespaces,
-  messageId
-) => {
+const deleteMessage = async (projectId, projectNamespaces, messageId) => {
   try {
+    // make sure if the project is there
+    await checkProject();
     await Message.findByIdAndDelete(messageId);
     emitNewMessages(projectNamespaces[projectId], projectId);
   } catch (err) {
     console.error(err);
+    sendError("Failed to send a message.", socket);
   }
 };
 

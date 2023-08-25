@@ -157,6 +157,15 @@ const sendError = (message, socket, isDeleted = false) => {
   });
 };
 
+const checkProject = async (projectId) => {
+  const project = await Project.findById(projectId);
+  if (!project) {
+    throw new Error(
+      "The project might be deleted by the project owner. Please go back to projects page to check."
+    );
+  }
+};
+
 module.exports = {
   uploadImage,
   getDefaultAvatarID,
@@ -170,4 +179,5 @@ module.exports = {
   emitNewData,
   sendError,
   emitNewMessages,
+  checkProject,
 };
