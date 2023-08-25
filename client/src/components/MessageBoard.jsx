@@ -67,6 +67,10 @@ const MessageBoard = ({ projectSocket, hidden }) => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const handleSend = () => {
+    if (message === "") {
+      alert("Message cannot be empty");
+      return;
+    }
     projectSocket.emit("sendMessage", { message });
     setMessage("");
   };
