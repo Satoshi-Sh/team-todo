@@ -189,7 +189,7 @@ const deleteTodo = async (projectId, socket, projectNamespaces, data) => {
 const sendMessage = async (projectId, socket, projectNamespaces, message) => {
   try {
     // make sure if the project is there
-    await checkProject();
+    await checkProject(projectId);
     const newMessage = new Message();
     newMessage.message = message;
     newMessage.sender = socket.user._id;
@@ -205,7 +205,7 @@ const sendMessage = async (projectId, socket, projectNamespaces, message) => {
 const deleteMessage = async (projectId, projectNamespaces, messageId) => {
   try {
     // make sure if the project is there
-    await checkProject();
+    await checkProject(projectId);
     await Message.findByIdAndDelete(messageId);
     emitNewMessages(projectNamespaces[projectId], projectId);
   } catch (err) {
