@@ -15,7 +15,8 @@ This project was created for [ComIT](https://www.comit.org/) Node.js course as m
 
 - Install Node
 - Create .env file according the sample.env file in the server folder.
-- Install mongodb and run it.
+- Install mongodb on local machine and run it.
+- npm install on client and server folder.
 - Run command `node populate.js` at the server folder terminal.
 
 ### Run app
