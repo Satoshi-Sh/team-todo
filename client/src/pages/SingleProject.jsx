@@ -162,7 +162,6 @@ const SingleProject = () => {
   const [project, setProject] = useState(null);
   const [isMember, setIsMember] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
-  const [message, setMessage] = useState("");
   const { user } = useContext(UserContext);
 
   const [isCompleted, setIsCompleted] = useState(false);
@@ -256,7 +255,7 @@ const SingleProject = () => {
         });
         projectSocket.on("projectError", (data) => {
           console.error(data);
-          setMessage(data.message);
+          alert(data.message);
         });
       }
     });
@@ -299,9 +298,6 @@ const SingleProject = () => {
         extraClass={"max-w-[800px] h-auto mx-auto p-4"}
       />
       <p className="max-w-lg p-3 mx-auto">{project.description}</p>
-      <div className="mx-auto w-[300px]">
-        <p className="text-red-500 m-5">{message}</p>
-      </div>
       <div className="m-3">
         {isOwner ? (
           <div className="m-4">
