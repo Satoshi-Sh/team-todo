@@ -9,6 +9,10 @@ This application allows users to create projects and other members take todo tas
 
 This project was created for [ComIT](https://www.comit.org/) Node.js course as my final project.
 
+## Demo Video
+
+https://youtu.be/wTHxClADqi0
+
 ## How to run locally
 
 ### Setup
