@@ -120,7 +120,7 @@ const CreateProject = () => {
         navigation(`/project/${projectId}`);
       }
     } catch (error) {
-      console.log(error);
+      setMessage(error.response.data.error);
     }
   };
   const handleFileUpload = (event) => {
@@ -219,6 +219,9 @@ const CreateProject = () => {
             accept=".jpg,.jpeg,.png"
           />
         </div>
+        <div className="text-red-500 m-20 text-center">
+          {message && message}
+        </div>
 
         <div className="flex items-center justify-center">
           <button
@@ -229,7 +232,6 @@ const CreateProject = () => {
           </button>
         </div>
       </form>
-      <div className="text-red-500 m-20 text-center">{message && message}</div>
     </div>
   );
 };

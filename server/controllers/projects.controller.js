@@ -4,6 +4,8 @@ const {
   getTodoIds,
 } = require("../utils/utils");
 
+const { validateNewProject } = require("../validators/project.validator");
+
 const Image = require("../models/image");
 const Project = require("../models/project");
 const Todo = require("../models/todo");
@@ -52,7 +54,12 @@ const createNewProject = async (req, res) => {
     }
     const owner = req.user["_id"];
     const { title, due, description, todos } = req.body;
-    // todo when file is not attached by the user
+
+    // validate project
+    const { error } = validateNewProject({ title, due, description });
+    if (error) {
+      return res.status(400).json({ error: error.details[0].message });
+    }
     let imageId;
     try {
       if (!req.file) {
@@ -85,7 +92,7 @@ const createNewProject = async (req, res) => {
     res.json({ projectId: project._id, message: `${title} is created.` });
   } catch (err) {
     console.error(err);
-    res.json({ message: err.message });
+    res.json({ error: err.message });
   }
 };
 
