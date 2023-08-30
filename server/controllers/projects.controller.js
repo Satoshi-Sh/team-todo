@@ -101,6 +101,12 @@ const updateProject = async (req, res) => {
     const { projectId } = req.params;
     const owner = req.user["_id"];
     const { title, due, description } = req.body;
+    // validate project
+    const { error } = validateNewProject({ title, due, description });
+    if (error) {
+      return res.status(400).json({ error: error.details[0].message });
+    }
+
     const updatedProject = await Project.findById(projectId).populate("image");
     if (!updatedProject) {
       res.status(404).json({ error: "Project is not found.." });

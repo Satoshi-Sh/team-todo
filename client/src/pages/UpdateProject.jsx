@@ -109,6 +109,7 @@ const UpdateProject = () => {
       }
     } catch (error) {
       console.log(error);
+      setMessage(error.response.data.error);
     }
   };
   const handleFileUpload = (event) => {
@@ -202,7 +203,7 @@ const UpdateProject = () => {
             accept=".jpg,.jpeg,.png"
           />
         </div>
-
+        <div className="text-red-500 m-5 text-center">{message && message}</div>
         <div className="flex items-center justify-center">
           <button
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
@@ -212,7 +213,7 @@ const UpdateProject = () => {
           </button>
         </div>
       </form>
-      <div className="text-red-500 m-20 text-center">{message && message}</div>
+
       <DeleteProject projectId={projectId} />
       <div className="text-center m-5">
         <Link to={`/project/${projectId}`} className="text-xl text-blue-700">
