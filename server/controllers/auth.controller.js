@@ -5,6 +5,7 @@ const {
   hashPassword,
   comparePassword,
 } = require("../utils/utils");
+const { validateNewUser } = require("../validators/user.validator");
 const { deleteProjectById } = require("./projects.controller");
 const { leaveProjectOnDelete } = require("./socket.controller");
 const Member = require("../models/member");
@@ -28,6 +29,16 @@ const createAccount = async (req, res) => {
       }
     }
     const { username, email, password } = req.body;
+    // validator
+    const { error } = validateNewUser({
+      username,
+      email,
+      password,
+    });
+    if (error) {
+      return res.status(400).json({ error: error.details[0].message });
+    }
+
     const hash = await hashPassword(password);
     const newMember = new Member({
       username,
