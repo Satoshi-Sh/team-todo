@@ -170,6 +170,9 @@ const UpdateAccount = () => {
             accept=".jpg,.jpeg,.png"
           />
         </div>
+        <div id="message" className="text-red-500 text-lg m-6 text-center">
+          {message && message}
+        </div>
 
         <div className="flex items-center justify-center">
           <button
@@ -180,9 +183,7 @@ const UpdateAccount = () => {
           </button>
         </div>
       </form>
-      <div id="message" className="text-red-500 mt-6 text-center">
-        {message && message}
-      </div>
+
       <DeleteAccount setMessage={setMessage} />
     </div>
   );

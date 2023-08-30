@@ -5,7 +5,10 @@ const {
   hashPassword,
   comparePassword,
 } = require("../utils/utils");
-const { validateNewUser } = require("../validators/user.validator");
+const {
+  validateNewUser,
+  validateUpdateUser,
+} = require("../validators/user.validator");
 const { deleteProjectById } = require("./projects.controller");
 const { leaveProjectOnDelete } = require("./socket.controller");
 const Member = require("../models/member");
@@ -16,6 +19,17 @@ const { generateToken } = require("../utils/auth");
 
 const createAccount = async (req, res) => {
   try {
+    const { username, email, password } = req.body;
+    // validator
+    const { error } = validateNewUser({
+      username,
+      email,
+      password,
+    });
+    if (error) {
+      return res.status(400).json({ error: error.details[0].message });
+    }
+
     // when file is not attached by the user
     let imageId;
     if (!req.file) {
@@ -27,16 +41,6 @@ const createAccount = async (req, res) => {
       } catch (err) {
         res.status(500).json({ error: "Error uploading image." });
       }
-    }
-    const { username, email, password } = req.body;
-    // validator
-    const { error } = validateNewUser({
-      username,
-      email,
-      password,
-    });
-    if (error) {
-      return res.status(400).json({ error: error.details[0].message });
     }
 
     const hash = await hashPassword(password);
@@ -66,6 +70,14 @@ const createAccount = async (req, res) => {
 const updateAccount = async (req, res) => {
   try {
     const { username, email, userId } = req.body;
+    // validator
+    const { error } = validateUpdateUser({
+      username,
+      email,
+    });
+    if (error) {
+      return res.status(400).json({ error: error.details[0].message });
+    }
     const member = await Member.findById(userId).populate("avatar");
     // remove old image and add new
     if (req.file) {
