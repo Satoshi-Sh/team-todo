@@ -118,6 +118,7 @@ function Navigation() {
                 contentType={user.avatar.contentType}
                 userId={user._id}
                 extraClass={"hidden lg:block"}
+                withLink={true}
               />
             )}
           </div>
